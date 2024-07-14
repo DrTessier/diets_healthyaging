@@ -95,15 +95,15 @@ m2_diet <- cbind(colnames(alco_matrix), myestimate, mycoef_diet, mylowerbound_di
 total_diet <- rbind(m1_diet, m2_diet)
 colnames(total_diet) <- c("Food Group", "B-mod1", "OR-mod1", "LB-mod1", "UB-mod1", "p-value-mod1", "p-value-mod1-bon", "p-value-mod1-fdr", "B-mod2", "OR-mod2", "LB-mod2", "UB-mod2", "p-value-mod2", "p-value-mod2-bon", "p-value-mod2-fdr", "together")
 
-write.table(total_diet, file = "/udd/nhtes/git/healthy-aging/Figure_correlation/food_groups_results_HA.csv", sep=",", quote=F, row.names=F, col.names=T)
+write.table(total_diet, file = "[file].csv", sep=",", quote=F, row.names=F, col.names=T)
 
 ### Merge with food group names
-Results_1 <- read.csv ('/udd/nhtes/git/healthy-aging/Figure_correlation/food_groups_results_HA.csv', header=TRUE, sep=',')
+Results_1 <- read.csv ('[file].csv', header=TRUE, sep=',')
 
 Results_main <- merge(Results_1, foodgrp_names, by.x="Food.Group", by.y="foodgrp_id", all.x=TRUE)
-save(Results_main, file = "/udd/nhtes/git/healthy-aging/Figure_correlation/food_groups_results_HA.RData")
+save(Results_main, file = "[file].RData")
 
 
 ### Overwrite with names
-write.table(Results_main, file = "/udd/nhtes/git/healthy-aging/Figure_correlation/food_groups_results_HA.csv", sep=",", quote=F, row.names=F, col.names=T)
+write.table(Results_main, file = "[file].csv", sep=",", quote=F, row.names=F, col.names=T)
 
