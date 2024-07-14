@@ -1,0 +1,1031 @@
+
+data aging_pool;
+   set out.ds_aging_pool_same_agebase70; /* this is using the dataset in which HPFS men above age 70 at baseline were excluded */
+
+run;
+
+/* Logistic Regression Model - macro */
+%macro logist(var1,dep,mvout);
+
+   proc logistic data=aging_pool;
+      class race_new(ref="1") pmh(ref="1") smk(ref="1");
+      model &dep(event='1')=&var1 sex age86 /clparm=wald;
+     
+      ods output ParameterEstimates=pe2;
+      ods output  OddsRatios=or2;
+   run;
+
+   ODS OUTPUT CLOSE;
+   
+   data or2;
+      set or2;
+      RR=put(OddsRatioEst,4.2)|| ' (' ||put(LowerCL,4.2)|| ', ' ||put(UpperCL,4.2)|| ')';
+      newid=_N_;
+      keep  newid RR;
+   run;
+   
+   data pe2;
+      set pe2;
+      newid=_N_ -1;
+      keep newid Variable ProbChiSq;
+   run;
+
+   data &mvout;
+      merge pe2 or2;
+      by newid;
+      keep newid Variable RR ProbChiSq;
+   run;
+
+%mend logist;
+
+
+%macro logist_class(var2,var1,dep,mvout);
+
+   proc logistic data=aging_pool;
+      class &var2(param=ref ref="1") race_new(ref="1") pmh(ref="1") smk(ref="1");
+      model &dep(event='1')=&var2 &var1 sex age86 /clparm=wald;
+     
+      ods output ParameterEstimates=pe2;
+      ods output  OddsRatios=or2;
+   run;
+
+   ODS OUTPUT CLOSE;
+   
+   data or2;
+      set or2;
+      RR=put(OddsRatioEst,4.2)|| ' (' ||put(LowerCL,4.2)|| ', ' ||put(UpperCL,4.2)|| ')';
+      newid=_N_;
+      keep  newid RR;
+   run;
+   
+   data pe2;
+      set pe2;
+      newid=_N_ -1;
+      keep newid Variable ProbChiSq;
+   run;
+
+   data &mvout;
+      merge pe2 or2;
+      by newid;
+      keep newid Variable RR ProbChiSq;
+   run;
+
+%mend logist_class;
+
+
+
+
+%macro logist_imp(var2,var1,dep,mvout);
+
+   proc logistic data=aging_pool;
+      class &var2(param=ref ref="1") race_new(ref="1") pmh(ref="1") smk(ref="1");
+      model &dep(event='0')=&var2 &var1 sex age86 /clparm=wald ;
+     
+      ods output ParameterEstimates=pe2;
+      ods output  OddsRatios=or2;
+   run;
+
+   ODS OUTPUT CLOSE;
+   
+   data or2;
+      set or2;
+      RR=put(OddsRatioEst,4.2)|| ' (' ||put(LowerCL,4.2)|| ', ' ||put(UpperCL,4.2)|| ')';
+      newid=_N_;
+      keep  newid RR;
+   run;
+   
+   data pe2;
+      set pe2;
+      newid=_N_ -1;
+      keep newid Variable ProbChiSq;
+   run;
+
+   data &mvout;
+      merge pe2 or2;
+      by newid;
+      keep newid Variable RR ProbChiSq;
+   run;
+
+%mend logist_imp;
+
+
+%logist(var1=ahei_avg_as, dep=healthy_ager_full, mvout=ahei_cont_results);
+%logist(var1=ahei_avg_as race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=ahei_cont_results_MV);
+
+%logist(var1=amed_avg_as, dep=healthy_ager_full, mvout=amed_cont_results);
+%logist(var1=amed_avg_as race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=amed_cont_results_MV);
+
+%logist(var1=dash_avg_as, dep=healthy_ager_full, mvout=dash_cont_results);
+%logist(var1=dash_avg_as race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=dash_cont_results_MV);
+
+%logist(var1=mind_avg_as, dep=healthy_ager_full, mvout=mind_cont_results);
+%logist(var1=mind_avg_as race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg /* wine is included in the MIND diet score */
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=mind_cont_results_MV);
+
+%logist(var1=hpdi_avg_as, dep=healthy_ager_full, mvout=hpdi_cont_results);
+%logist(var1=hpdi_avg_as race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=hpdi_cont_results_MV);
+
+%logist(var1=phd_avg_as, dep=healthy_ager_full, mvout=phd_cont_results);
+%logist(var1=phd_avg_as race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=phd_cont_results_MV);
+
+%logist(var1=edih_avg_as, dep=healthy_ager_full, mvout=edih_cont_results);
+%logist(var1=edih_avg_as race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=edih_cont_results_MV);
+
+%logist(var1=edip_avg_as, dep=healthy_ager_full, mvout=edip_cont_results);
+%logist(var1=edip_avg_as race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=edip_cont_results_MV);
+
+ods html file='/udd/nhtes/git/healthy-aging/pool.cont_nosup.xls';
+
+proc print data=ahei_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=ahei_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=amed_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "amed and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=amed_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "amed and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=dash_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "dash and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=dash_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "dash and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=mind_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "mind and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=mind_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "mind and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=hpdi_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=hpdi_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+proc print data=phd_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "phd and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=phd_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "phd and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+proc print data=edih_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "edih and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=edih_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "edih and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=edip_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "edip and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=edip_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "edip and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+ods html close; 
+
+
+
+/* Results using quintiles */
+
+%logist_class(var2=qahei_avg_a, var1=qahei_avg_a, dep=healthy_ager_full, mvout=ahei_q_results);
+
+%logist_class(var2= qahei_avg_a, var1=qahei_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=ahei_q_results_MV);
+
+
+%logist_class(var2=qamed_avg_a, var1=qamed_avg_a, dep=healthy_ager_full, mvout=amed_q_results);
+
+%logist_class(var2=qamed_avg_a, var1=qamed_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=amed_q_results_MV);
+
+ 
+%logist_class(var2=qdash_avg_a, var1=qdash_avg_a, dep=healthy_ager_full, mvout=dash_q_results);
+
+%logist_class(var2=qdash_avg_a, var1=qdash_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=dash_q_results_MV);
+
+
+%logist_class(var2=qmind_avg_a,var1=qmind_avg_a, dep=healthy_ager_full, mvout=mind_q_results);
+
+%logist_class(var2=qmind_avg_a, var1=qmind_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=mind_q_results_MV); /* wine is included in the MIND diet score */
+
+
+%logist_class(var2=qhpdi_avg_a, var1=qhpdi_avg_a, dep=healthy_ager_full, mvout=hpdi_q_results);
+
+%logist_class(var2=qhpdi_avg_a, var1=qhpdi_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=hpdi_q_results_MV);
+
+
+%logist_class(var2=qphd_avg_a,var1=qphd_avg_a, dep=healthy_ager_full, mvout=phd_q_results);
+
+%logist_class(var2=qphd_avg_a, var1=qphd_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=phd_q_results_MV); 
+
+
+%logist_class(var2=qedih_avg_a,var1=qedih_avg_a, dep=healthy_ager_full, mvout=edih_q_results);
+
+%logist_class(var2=qedih_avg_a, var1=qedih_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=edih_q_results_MV); 
+
+
+%logist_class(var2=qedip_avg_a,var1=qedip_avg_a, dep=healthy_ager_full, mvout=edip_q_results);
+
+%logist_class(var2=qedip_avg_a, var1=qedip_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=edip_q_results_MV); 
+
+
+ods html file='/udd/nhtes/git/healthy-aging/pool.quintiles_nosup.xls';
+
+proc print data=ahei_q_results;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and healthy aging - energy adj and standardized (quintiles)";
+run;
+proc print data=ahei_q_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and healthy aging - energy adj and standardized (quintiles) MV";
+run;
+
+
+proc print data=amed_q_results;
+   var   newid Variable RR ProbChiSq;
+   title "amed and healthy aging - energy adj and standardized (quintiles)";
+run;
+proc print data=amed_q_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "amed and healthy aging - energy adj and standardized (quintiles) MV";
+run;
+
+
+proc print data=dash_q_results;
+   var   newid Variable RR ProbChiSq;
+   title "dash and healthy aging - energy adj and standardized (quintiles)";
+run;
+proc print data=dash_q_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "dash and healthy aging - energy adj and standardized (quintiles) MV";
+run;
+
+
+proc print data=mind_q_results;
+   var   newid Variable RR ProbChiSq;
+   title "mind and healthy aging - energy adj and standardized (quintiles)";
+run;
+proc print data=mind_q_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "mind and healthy aging - energy adj and standardized (quintiles) MV";
+run;
+
+
+proc print data=hpdi_q_results;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and healthy aging - energy adj and standardized (quintiles)";
+run;
+proc print data=hpdi_q_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and healthy aging - energy adj and standardized (quintiles) MV";
+run;
+
+proc print data=phd_q_results;
+   var   newid Variable RR ProbChiSq;
+   title "phd and healthy aging - energy adj and standardized (quintiles)";
+run;
+proc print data=phd_q_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "phd and healthy aging - energy adj and standardized (quintiles) MV";
+run;
+
+
+proc print data=edih_q_results;
+   var   newid Variable RR ProbChiSq;
+   title "edih and healthy aging - energy adj and standardized (quintiles)";
+run;
+proc print data=edih_q_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "edih and healthy aging - energy adj and standardized (quintiles) MV";
+run;
+
+
+proc print data=edip_q_results;
+   var   newid Variable RR ProbChiSq;
+   title "edip and healthy aging - energy adj and standardized (quintiles)";
+run;
+proc print data=edip_q_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "edip and healthy aging - energy adj and standardized (quintiles) MV";
+run;
+ods html close; 
+
+
+
+
+/* Results using quintiles - cognitive domain */
+
+%logist_imp(var2=qahei_avg_a, var1=qahei_avg_a, dep=imp_cog_func, mvout=ahei_q_results_imp_cog);
+
+%logist_imp(var2= qahei_avg_a, var1=qahei_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=imp_cog_func, mvout=ahei_q_results_MV_imp_cog);
+
+
+%logist_imp(var2=qamed_avg_a, var1=qamed_avg_a, dep=imp_cog_func, mvout=amed_q_results_imp_cog);
+
+%logist_imp(var2=qamed_avg_a, var1=qamed_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=imp_cog_func, mvout=amed_q_results_MV_imp_cog);
+
+ 
+%logist_imp(var2=qdash_avg_a, var1=qdash_avg_a, dep=imp_cog_func, mvout=dash_q_results_imp_cog);
+
+%logist_imp(var2=qdash_avg_a, var1=qdash_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=imp_cog_func, mvout=dash_q_results_MV_imp_cog);
+
+
+%logist_imp(var2=qmind_avg_a,var1=qmind_avg_a, dep=imp_cog_func, mvout=mind_q_results_imp_cog);
+
+%logist_imp(var2=qmind_avg_a, var1=qmind_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=imp_cog_func, mvout=mind_q_results_MV_imp_cog); 
+
+
+%logist_imp(var2=qhpdi_avg_a, var1=qhpdi_avg_a, dep=imp_cog_func, mvout=hpdi_q_results_imp_cog);
+
+%logist_imp(var2=qhpdi_avg_a, var1=qhpdi_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=imp_cog_func, mvout=hpdi_q_results_MV_imp_cog);
+
+
+%logist_imp(var2=qphd_avg_a,var1=qphd_avg_a, dep=imp_cog_func, mvout=phd_q_results_imp_cog);
+
+%logist_imp(var2=qphd_avg_a, var1=qphd_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=imp_cog_func, mvout=phd_q_results_MV_imp_cog); 
+
+
+%logist_imp(var2=qedih_avg_a,var1=qedih_avg_a, dep=imp_cog_func, mvout=edih_q_results_imp_cog);
+
+%logist_imp(var2=qedih_avg_a, var1=qedih_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=imp_cog_func, mvout=edih_q_results_MV_imp_cog); 
+
+
+%logist_imp(var2=qedip_avg_a,var1=qedip_avg_a, dep=imp_cog_func, mvout=edip_q_results_imp_cog);
+
+%logist_imp(var2=qedip_avg_a, var1=qedip_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=imp_cog_func, mvout=edip_q_results_MV_imp_cog); 
+
+
+
+ods html file='/udd/nhtes/git/healthy-aging/pool.quintiles.cog_nosup.xls';
+
+proc print data=ahei_q_results_imp_cog;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and impaired cognition - energy adj and standardized (quintiles)";
+run;
+proc print data=ahei_q_results_MV_imp_cog;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and impaired cognition - energy adj and standardized (quintiles) MV";
+run;
+
+proc print data=amed_q_results_imp_cog;
+   var   newid Variable RR ProbChiSq;
+   title "amed and impaired cognition - energy adj and standardized (quintiles)";
+run;
+proc print data=amed_q_results_MV_imp_cog;
+   var   newid Variable RR ProbChiSq;
+   title "amed and impaired cognition - energy adj and standardized (quintiles) MV";
+run;
+
+proc print data=dash_q_results_imp_cog;
+   var   newid Variable RR ProbChiSq;
+   title "dash and impaired cognition - energy adj and standardized (quintiles)";
+run;
+proc print data=dash_q_results_MV_imp_cog;
+   var   newid Variable RR ProbChiSq;
+   title "dash and impaired cognition - energy adj and standardized (quintiles) MV";
+run;
+
+
+proc print data=mind_q_results_imp_cog;
+   var   newid Variable RR ProbChiSq;
+   title "mind and impaired cognition - energy adj and standardized (quintiles)";
+run;
+proc print data=mind_q_results_MV_imp_cog;
+   var   newid Variable RR ProbChiSq;
+   title "mind and impaired cognition - energy adj and standardized (quintiles) MV";
+run;
+
+
+proc print data=hpdi_q_results_imp_cog;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and impaired cognition - energy adj and standardized (quintiles)";
+run;
+proc print data=hpdi_q_results_MV_imp_cog;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and impaired cognition - energy adj and standardized (quintiles) MV";
+run;
+
+proc print data=phd_q_results_imp_cog;
+   var   newid Variable RR ProbChiSq;
+   title "phd and impaired cognition - energy adj and standardized (quintiles)";
+run;
+proc print data=phd_q_results_MV_imp_cog;
+   var   newid Variable RR ProbChiSq;
+   title "phd and impaired cognition - energy adj and standardized (quintiles) MV";
+run; 
+
+
+proc print data=edih_q_results_imp_cog;
+   var   newid Variable RR ProbChiSq;
+   title "edih and impaired cognition - energy adj and standardized (quintiles)";
+run;
+proc print data=edih_q_results_MV_imp_cog;
+   var   newid Variable RR ProbChiSq;
+   title "edih and impaired cognition - energy adj and standardized (quintiles) MV";
+run; 
+
+
+proc print data=edip_q_results_imp_cog;
+   var   newid Variable RR ProbChiSq;
+   title "edip and impaired cognition - energy adj and standardized (quintiles)";
+run;
+proc print data=edip_q_results_MV_imp_cog;
+   var   newid Variable RR ProbChiSq;
+   title "edip and impaired cognition - energy adj and standardized (quintiles) MV";
+run; 
+ods html close; 
+
+
+
+
+/* Results using quintiles - phys function domain */
+
+%logist_imp(var2=qahei_avg_a, var1=qahei_avg_a, dep=imp_phys_func, mvout=ahei_q_results_imp_pf);
+
+%logist_imp(var2= qahei_avg_a, var1=qahei_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=imp_phys_func, mvout=ahei_q_results_MV_imp_pf);
+
+
+%logist_imp(var2=qamed_avg_a, var1=qamed_avg_a, dep=imp_phys_func, mvout=amed_q_results_imp_pf);
+
+%logist_imp(var2=qamed_avg_a, var1=qamed_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=imp_phys_func, mvout=amed_q_results_MV_imp_pf);
+
+ 
+%logist_imp(var2=qdash_avg_a, var1=qdash_avg_a, dep=imp_phys_func, mvout=dash_q_results_imp_pf);
+
+%logist_imp(var2=qdash_avg_a, var1=qdash_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=imp_phys_func, mvout=dash_q_results_MV_imp_pf);
+
+
+%logist_imp(var2=qmind_avg_a,var1=qmind_avg_a, dep=imp_phys_func, mvout=mind_q_results_imp_pf);
+
+%logist_imp(var2=qmind_avg_a, var1=qmind_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=imp_phys_func, mvout=mind_q_results_MV_imp_pf); 
+
+
+%logist_imp(var2=qhpdi_avg_a, var1=qhpdi_avg_a, dep=imp_phys_func, mvout=hpdi_q_results_imp_pf);
+
+%logist_imp(var2=qhpdi_avg_a, var1=qhpdi_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=imp_phys_func, mvout=hpdi_q_results_MV_imp_pf);
+
+
+%logist_imp(var2=qphd_avg_a,var1=qphd_avg_a, dep=imp_phys_func, mvout=phd_q_results_imp_pf);
+
+%logist_imp(var2=qphd_avg_a, var1=qphd_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=imp_phys_func, mvout=phd_q_results_MV_imp_pf); 
+
+
+%logist_imp(var2=qedih_avg_a,var1=qedih_avg_a, dep=imp_phys_func, mvout=edih_q_results_imp_pf);
+
+%logist_imp(var2=qedih_avg_a, var1=qedih_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=imp_phys_func, mvout=edih_q_results_MV_imp_pf); 
+
+
+%logist_imp(var2=qedip_avg_a,var1=qedip_avg_a, dep=imp_phys_func, mvout=edip_q_results_imp_pf);
+
+%logist_imp(var2=qedip_avg_a, var1=qedip_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=imp_phys_func, mvout=edip_q_results_MV_imp_pf); 
+
+
+
+ods html file='/udd/nhtes/git/healthy-aging/pool.quintiles.physfunc_nosup.xls';
+
+proc print data=ahei_q_results_imp_pf;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and impaired physical function - energy adj and standardized (quintiles)";
+run;
+proc print data=ahei_q_results_MV_imp_pf;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and impaired physical function - energy adj and standardized (quintiles) MV";
+run;
+
+proc print data=amed_q_results_imp_pf;
+   var   newid Variable RR ProbChiSq;
+   title "amed and impaired physical function - energy adj and standardized (quintiles)";
+run;
+proc print data=amed_q_results_MV_imp_pf;
+   var   newid Variable RR ProbChiSq;
+   title "amed and impaired physical function - energy adj and standardized (quintiles) MV";
+run;
+
+proc print data=dash_q_results_imp_pf;
+   var   newid Variable RR ProbChiSq;
+   title "dash and impaired physical function - energy adj and standardized (quintiles)";
+run;
+proc print data=dash_q_results_MV_imp_pf;
+   var   newid Variable RR ProbChiSq;
+   title "dash and impaired physical function - energy adj and standardized (quintiles) MV";
+run;
+
+
+proc print data=mind_q_results_imp_pf;
+   var   newid Variable RR ProbChiSq;
+   title "mind and impaired physical function - energy adj and standardized (quintiles)";
+run;
+proc print data=mind_q_results_MV_imp_pf;
+   var   newid Variable RR ProbChiSq;
+   title "mind and impaired physical function - energy adj and standardized (quintiles) MV";
+run;
+
+
+proc print data=hpdi_q_results_imp_pf;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and impaired physical function - energy adj and standardized (quintiles)";
+run;
+proc print data=hpdi_q_results_MV_imp_pf;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and impaired physical function - energy adj and standardized (quintiles) MV";
+run;
+
+proc print data=phd_q_results_imp_pf;
+   var   newid Variable RR ProbChiSq;
+   title "phd and impaired physical function - energy adj and standardized (quintiles)";
+run;
+proc print data=phd_q_results_MV_imp_pf;
+   var   newid Variable RR ProbChiSq;
+   title "phd and impaired physical function - energy adj and standardized (quintiles) MV";
+run; 
+
+
+proc print data=edih_q_results_imp_pf;
+   var   newid Variable RR ProbChiSq;
+   title "edih and impaired physical function - energy adj and standardized (quintiles)";
+run;
+proc print data=edih_q_results_MV_imp_pf;
+   var   newid Variable RR ProbChiSq;
+   title "edih and impaired physical function - energy adj and standardized (quintiles) MV";
+run; 
+
+
+proc print data=edip_q_results_imp_pf;
+   var   newid Variable RR ProbChiSq;
+   title "edip and impaired physical function - energy adj and standardized (quintiles)";
+run;
+proc print data=edip_q_results_MV_imp_pf;
+   var   newid Variable RR ProbChiSq;
+   title "edip and impaired physical function - energy adj and standardized (quintiles) MV";
+run; 
+
+ods html close; 
+
+
+
+
+
+/* Results using quintiles - mental health domain */
+
+%logist_imp(var2=qahei_avg_a, var1=qahei_avg_a, dep=imp_mental, mvout=ahei_q_results_imp_mental);
+
+%logist_imp(var2= qahei_avg_a, var1=qahei_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=imp_mental, mvout=ahei_q_results_MV_imp_mental);
+
+
+%logist_imp(var2=qamed_avg_a, var1=qamed_avg_a, dep=imp_mental, mvout=amed_q_results_imp_mental);
+
+%logist_imp(var2=qamed_avg_a, var1=qamed_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=imp_mental, mvout=amed_q_results_MV_imp_mental);
+
+ 
+%logist_imp(var2=qdash_avg_a, var1=qdash_avg_a, dep=imp_mental, mvout=dash_q_results_imp_mental);
+
+%logist_imp(var2=qdash_avg_a, var1=qdash_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=imp_mental, mvout=dash_q_results_MV_imp_mental);
+
+
+%logist_imp(var2=qmind_avg_a,var1=qmind_avg_a, dep=imp_mental, mvout=mind_q_results_imp_mental);
+
+%logist_imp(var2=qmind_avg_a, var1=qmind_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=imp_mental, mvout=mind_q_results_MV_imp_mental);
+
+
+%logist_imp(var2=qhpdi_avg_a, var1=qhpdi_avg_a, dep=imp_mental, mvout=hpdi_q_results_imp_mental);
+
+%logist_imp(var2=qhpdi_avg_a, var1=qhpdi_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=imp_mental, mvout=hpdi_q_results_MV_imp_mental);
+
+
+%logist_imp(var2=qphd_avg_a,var1=qphd_avg_a, dep=imp_mental, mvout=phd_q_results_imp_mental);
+
+%logist_imp(var2=qphd_avg_a, var1=qphd_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=imp_mental, mvout=phd_q_results_MV_imp_mental); 
+
+
+%logist_imp(var2=qedih_avg_a,var1=qedih_avg_a, dep=imp_mental, mvout=edih_q_results_imp_mental);
+
+%logist_imp(var2=qedih_avg_a, var1=qedih_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=imp_mental, mvout=edih_q_results_MV_imp_mental); 
+
+
+%logist_imp(var2=qedip_avg_a,var1=qedip_avg_a, dep=imp_mental, mvout=edip_q_results_imp_mental);
+
+%logist_imp(var2=qedip_avg_a, var1=qedip_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=imp_mental, mvout=edip_q_results_MV_imp_mental); 
+
+
+
+
+ods html file='/udd/nhtes/git/healthy-aging/pool.quintiles.mental_nosup.xls';
+
+proc print data=ahei_q_results_imp_mental;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and impaired mental function - energy adj and standardized (quintiles)";
+run;
+proc print data=ahei_q_results_MV_imp_mental;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and impaired mental function - energy adj and standardized (quintiles) MV";
+run;
+
+proc print data=amed_q_results_imp_mental;
+   var   newid Variable RR ProbChiSq;
+   title "amed and impaired mental function - energy adj and standardized (quintiles)";
+run;
+proc print data=amed_q_results_MV_imp_mental;
+   var   newid Variable RR ProbChiSq;
+   title "amed and impaired mental function - energy adj and standardized (quintiles) MV";
+run;
+
+proc print data=dash_q_results_imp_mental;
+   var   newid Variable RR ProbChiSq;
+   title "dash and impaired mental function - energy adj and standardized (quintiles)";
+run;
+proc print data=dash_q_results_MV_imp_mental;
+   var   newid Variable RR ProbChiSq;
+   title "dash and impaired mental function - energy adj and standardized (quintiles) MV";
+run;
+
+
+proc print data=mind_q_results_imp_mental;
+   var   newid Variable RR ProbChiSq;
+   title "mind and impaired mental function - energy adj and standardized (quintiles)";
+run;
+proc print data=mind_q_results_MV_imp_mental;
+   var   newid Variable RR ProbChiSq;
+   title "mind and impaired mental function - energy adj and standardized (quintiles) MV";
+run;
+
+
+proc print data=hpdi_q_results_imp_mental;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and impaired mental function - energy adj and standardized (quintiles)";
+run;
+proc print data=hpdi_q_results_MV_imp_mental;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and impaired mental function - energy adj and standardized (quintiles) MV";
+run;
+
+proc print data=phd_q_results_imp_mental;
+   var   newid Variable RR ProbChiSq;
+   title "phd and impaired mental function - energy adj and standardized (quintiles)";
+run;
+proc print data=phd_q_results_MV_imp_mental;
+   var   newid Variable RR ProbChiSq;
+   title "phd and impaired mental function - energy adj and standardized (quintiles) MV";
+run; 
+
+
+proc print data=edih_q_results_imp_mental;
+   var   newid Variable RR ProbChiSq;
+   title "edih and impaired mental function - energy adj and standardized (quintiles)";
+run;
+proc print data=edih_q_results_MV_imp_mental;
+   var   newid Variable RR ProbChiSq;
+   title "edih and impaired mental function - energy adj and standardized (quintiles) MV";
+run; 
+
+
+proc print data=edip_q_results_imp_mental;
+   var   newid Variable RR ProbChiSq;
+   title "edip and impaired mental function - energy adj and standardized (quintiles)";
+run;
+proc print data=edip_q_results_MV_imp_mental;
+   var   newid Variable RR ProbChiSq;
+   title "edip and impaired mental function - energy adj and standardized (quintiles) MV";
+run; 
+
+ods html close; 
+
+
+
+/* Results using quintiles - chronic disease domain  - RERUN THIS WITH ALL DISEASES (last run was with major only)*/
+
+%logist_imp(var2=qahei_avg_a, var1=qahei_avg_a, dep=alldisease_2016, mvout=ahei_q_results_CD);
+
+%logist_imp(var2= qahei_avg_a, var1=qahei_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=alldisease_2016, mvout=ahei_q_results_MV_CD);
+
+
+%logist_imp(var2=qamed_avg_a, var1=qamed_avg_a, dep=alldisease_2016, mvout=amed_q_results_CD);
+
+%logist_imp(var2=qamed_avg_a, var1=qamed_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=alldisease_2016, mvout=amed_q_results_MV_CD);
+
+ 
+%logist_imp(var2=qdash_avg_a, var1=qdash_avg_a, dep=alldisease_2016, mvout=dash_q_results_CD);
+
+%logist_imp(var2=qdash_avg_a, var1=qdash_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=alldisease_2016, mvout=dash_q_results_MV_CD);
+
+
+%logist_imp(var2=qmind_avg_a,var1=qmind_avg_a, dep=alldisease_2016, mvout=mind_q_results_CD);
+
+%logist_imp(var2=qmind_avg_a, var1=qmind_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=alldisease_2016, mvout=mind_q_results_MV_CD); 
+
+
+%logist_imp(var2=qhpdi_avg_a, var1=qhpdi_avg_a, dep=alldisease_2016, mvout=hpdi_q_results_CD);
+
+%logist_imp(var2=qhpdi_avg_a, var1=qhpdi_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=alldisease_2016, mvout=hpdi_q_results_MV_CD);
+
+
+%logist_imp(var2=qphd_avg_a,var1=qphd_avg_a, dep=alldisease_2016, mvout=phd_q_results_CD);
+
+%logist_imp(var2=qphd_avg_a, var1=qphd_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=alldisease_2016, mvout=phd_q_results_MV_CD); 
+
+
+%logist_imp(var2=qedih_avg_a,var1=qedih_avg_a, dep=alldisease_2016, mvout=edih_q_results_CD);
+
+%logist_imp(var2=qedih_avg_a, var1=qedih_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=alldisease_2016, mvout=edih_q_results_MV_CD); 
+
+
+%logist_imp(var2=qedip_avg_a,var1=qedip_avg_a, dep=alldisease_2016, mvout=edip_q_results_CD);
+
+%logist_imp(var2=qedip_avg_a, var1=qedip_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=alldisease_2016, mvout=edip_q_results_MV_CD); 
+
+
+
+
+
+ods html file='/udd/nhtes/git/healthy-aging/pool.quintiles.CD_nosup.xls';
+
+proc print data=ahei_q_results_CD;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and no CD - energy adj and standardized (quintiles)";
+run;
+proc print data=ahei_q_results_MV_CD;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and no CD - energy adj and standardized (quintiles) MV";
+run;
+
+proc print data=amed_q_results_CD;
+   var   newid Variable RR ProbChiSq;
+   title "amed and no CD - energy adj and standardized (quintiles)";
+run;
+proc print data=amed_q_results_MV_CD;
+   var   newid Variable RR ProbChiSq;
+   title "amed and no CD - energy adj and standardized (quintiles) MV";
+run;
+
+proc print data=dash_q_results_CD;
+   var   newid Variable RR ProbChiSq;
+   title "dash and no CD - energy adj and standardized (quintiles)";
+run;
+proc print data=dash_q_results_MV_CD;
+   var   newid Variable RR ProbChiSq;
+   title "dash and no CD - energy adj and standardized (quintiles) MV";
+run;
+
+
+proc print data=mind_q_results_CD;
+   var   newid Variable RR ProbChiSq;
+   title "mind and no CD - energy adj and standardized (quintiles)";
+run;
+proc print data=mind_q_results_MV_CD;
+   var   newid Variable RR ProbChiSq;
+   title "mind and no CD - energy adj and standardized (quintiles) MV";
+run;
+
+
+proc print data=hpdi_q_results_CD;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and no CD - energy adj and standardized (quintiles)";
+run;
+proc print data=hpdi_q_results_MV_CD;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and no CD - energy adj and standardized (quintiles) MV";
+run;
+
+proc print data=phd_q_results_CD;
+   var   newid Variable RR ProbChiSq;
+   title "phd and no CD - energy adj and standardized (quintiles)";
+run;
+proc print data=phd_q_results_MV_CD;
+   var   newid Variable RR ProbChiSq;
+   title "phd and no CD - energy adj and standardized (quintiles) MV";
+run; 
+
+
+proc print data=edih_q_results_CD;
+   var   newid Variable RR ProbChiSq;
+   title "edih and no CD - energy adj and standardized (quintiles)";
+run;
+proc print data=edih_q_results_MV_CD;
+   var   newid Variable RR ProbChiSq;
+   title "edih and no CD - energy adj and standardized (quintiles) MV";
+run; 
+
+
+proc print data=edip_q_results_CD;
+   var   newid Variable RR ProbChiSq;
+   title "edip and no CD - energy adj and standardized (quintiles)";
+run;
+proc print data=edip_q_results_MV_CD;
+   var   newid Variable RR ProbChiSq;
+   title "edip and no CD - energy adj and standardized (quintiles) MV";
+run; 
+
+ods html close; 
+
+
+
+
+/* Results using quintiles - reached 70y domain */
+
+%logist_class(var2=qahei_avg_a, var1=qahei_avg_a, dep=reached_70, mvout=ahei_q_results_reached_70);
+
+%logist_class(var2= qahei_avg_a, var1=qahei_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=reached_70, mvout=ahei_q_results_MV_reached_70);
+
+
+%logist_class(var2=qamed_avg_a, var1=qamed_avg_a, dep=reached_70, mvout=amed_q_results_reached_70);
+
+%logist_class(var2=qamed_avg_a, var1=qamed_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=reached_70, mvout=amed_q_results_MV_reached_70);
+
+ 
+%logist_class(var2=qdash_avg_a, var1=qdash_avg_a, dep=reached_70, mvout=dash_q_results_reached_70);
+
+%logist_class(var2=qdash_avg_a, var1=qdash_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=reached_70, mvout=dash_q_results_MV_reached_70);
+
+
+%logist_class(var2=qmind_avg_a,var1=qmind_avg_a, dep=reached_70, mvout=mind_q_results_reached_70);
+
+%logist_class(var2=qmind_avg_a, var1=qmind_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=reached_70, mvout=mind_q_results_MV_reached_70); 
+
+
+%logist_class(var2=qhpdi_avg_a, var1=qhpdi_avg_a, dep=reached_70, mvout=hpdi_q_results_reached_70);
+
+%logist_class(var2=qhpdi_avg_a, var1=qhpdi_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=reached_70, mvout=hpdi_q_results_MV_reached_70);
+
+
+%logist_class(var2=qphd_avg_a,var1=qphd_avg_a, dep=reached_70, mvout=phd_q_results_reached_70);
+
+%logist_class(var2=qphd_avg_a, var1=qphd_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=reached_70, mvout=phd_q_results_MV_reached_70); 
+
+
+%logist_class(var2=qedih_avg_a,var1=qedih_avg_a, dep=reached_70, mvout=edih_q_results_reached_70);
+
+%logist_class(var2=qedih_avg_a, var1=qedih_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=reached_70, mvout=edih_q_results_MV_reached_70); 
+
+
+%logist_class(var2=qedip_avg_a,var1=qedip_avg_a, dep=reached_70, mvout=edip_q_results_reached_70);
+
+%logist_class(var2=qedip_avg_a, var1=qedip_avg_a race_new alone_ever marry_base nSES_86 bmi_avg mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=reached_70, mvout=edip_q_results_MV_reached_70); 
+
+
+
+ods html file='/udd/nhtes/git/healthy-aging/pool.quintiles.reached_nosup.xls';
+
+proc print data=ahei_q_results_reached_70;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and survived to age 70y - energy adj and standardized (quintiles)";
+run;
+proc print data=ahei_q_results_MV_reached_70;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and survived to age 70y - energy adj and standardized (quintiles) MV";
+run;
+
+proc print data=amed_q_results_reached_70;
+   var   newid Variable RR ProbChiSq;
+   title "amed and survived to age 70y - energy adj and standardized (quintiles)";
+run;
+proc print data=amed_q_results_MV_reached_70;
+   var   newid Variable RR ProbChiSq;
+   title "amed and survived to age 70y - energy adj and standardized (quintiles) MV";
+run;
+
+proc print data=dash_q_results_reached_70;
+   var   newid Variable RR ProbChiSq;
+   title "dash and survived to age 70y - energy adj and standardized (quintiles)";
+run;
+proc print data=dash_q_results_MV_reached_70;
+   var   newid Variable RR ProbChiSq;
+   title "dash and survived to age 70y - energy adj and standardized (quintiles) MV";
+run;
+
+
+proc print data=mind_q_results_reached_70;
+   var   newid Variable RR ProbChiSq;
+   title "mind and survived to age 70y - energy adj and standardized (quintiles)";
+run;
+proc print data=mind_q_results_MV_reached_70;
+   var   newid Variable RR ProbChiSq;
+   title "mind and survived to age 70y - energy adj and standardized (quintiles) MV";
+run;
+
+
+proc print data=hpdi_q_results_reached_70;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and survived to age 70y - energy adj and standardized (quintiles)";
+run;
+proc print data=hpdi_q_results_MV_reached_70;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and survived to age 70y - energy adj and standardized (quintiles) MV";
+run;
+
+proc print data=phd_q_results_reached_70;
+   var   newid Variable RR ProbChiSq;
+   title "phd and survived to age 70y - energy adj and standardized (quintiles)";
+run;
+proc print data=phd_q_results_MV_reached_70;
+   var   newid Variable RR ProbChiSq;
+   title "phd and survived to age 70y - energy adj and standardized (quintiles) MV";
+run; 
+
+
+proc print data=edih_q_results_reached_70;
+   var   newid Variable RR ProbChiSq;
+   title "edih and survived to age 70y - energy adj and standardized (quintiles)";
+run;
+proc print data=edih_q_results_MV_reached_70;
+   var   newid Variable RR ProbChiSq;
+   title "edih and survived to age 70y - energy adj and standardized (quintiles) MV";
+run; 
+
+
+proc print data=edip_q_results_reached_70;
+   var   newid Variable RR ProbChiSq;
+   title "edip and survived to age 70y - energy adj and standardized (quintiles)";
+run;
+proc print data=edip_q_results_MV_reached_70;
+   var   newid Variable RR ProbChiSq;
+   title "edip and survived to age 70y - energy adj and standardized (quintiles) MV";
+run; 
+
+ods html close;
+
+ 
