@@ -1,0 +1,1214 @@
+
+data aging_pool;
+   set out.ds_aging_pool_same_agebase70;
+
+   if bmi_avg>=25 then bmi_2cat=1;
+   else bmi_2cat=0;
+
+   if age86>=60 then age_2cat=1;
+   else age_2cat=0;
+
+   if alco_avg=0 then alco_zero=0;
+   else alco_zero=1;
+
+   if alco_avg>14 then alco_2cat=1; /* this may end up being men? */
+   else alco_2cat=0;
+   
+   /* you are here */
+
+   if pa_avg< 1.25 then pa_2cat=0; /* this may end up being all women...consider using sex-specific */
+   else pa_2cat=1;
+
+   /* sex-specific median */
+   if pa_avg>=2.1818182  and sex=0 then pa_2cat_sex=1;
+   else if pa_avg>=0.9166667 and sex=1 then pa_2cat_sex=1;
+      else pa_2cat_sex=0;
+
+   if SES_avg<-0.5476154 then SES_2cat=0;
+   else SES_2cat=1;
+
+   /* never smokers vs others */
+
+   if smk=1 then smk_2cat=0; /* smk=1 is never smoker */
+   else smk_2cat=1;
+
+   if race_new=1 then white=1; 
+   else white=0;
+
+
+   int_bmi_ahei=bmi_avg*ahei_avg_as;
+   int_bmi_amed=bmi_avg*amed_avg_as;
+   int_bmi_dash=bmi_avg*dash_avg_as;
+   int_bmi_hpdi=bmi_avg*hpdi_avg_as;
+   int_bmi_mind=bmi_avg*mind_avg_as;
+   int_bmi_phd=bmi_avg*phd_avg_as;
+   int_bmi_edih=bmi_avg*edih_avg_as;
+   int_bmi_edip=bmi_avg*edip_avg_as; 
+
+   int_bmi2_ahei=bmi_2cat*ahei_avg_as;
+   int_bmi2_amed=bmi_2cat*amed_avg_as;
+   int_bmi2_dash=bmi_2cat*dash_avg_as;
+   int_bmi2_hpdi=bmi_2cat*hpdi_avg_as;
+   int_bmi2_mind=bmi_2cat*mind_avg_as;
+   int_bmi2_phd=bmi_2cat*phd_avg_as;
+   int_bmi2_edih=bmi_2cat*edih_avg_as;
+   int_bmi2_edip=bmi_2cat*edip_avg_as; 
+
+   int_sex_ahei=sex*ahei_avg_as;
+   int_sex_amed=sex*amed_avg_as;
+   int_sex_dash=sex*dash_avg_as;
+   int_sex_hpdi=sex*hpdi_avg_as;
+   int_sex_mind=sex*mind_avg_as;
+   int_sex_phd=sex*phd_avg_as;
+   int_sex_edih=sex*edih_avg_as;
+   int_sex_edip=sex*edip_avg_as; 
+
+   int_ses_ahei=nSES_86*ahei_avg_as;
+   int_ses_amed=nSES_86*amed_avg_as;
+   int_ses_dash=nSES_86*dash_avg_as;
+   int_ses_hpdi=nSES_86*hpdi_avg_as;
+   int_ses_mind=nSES_86*mind_avg_as;
+   int_ses_phd=nSES_86*phd_avg_as;
+   int_ses_edih=nSES_86*edih_avg_as;
+   int_ses_edip=nSES_86*edip_avg_as; 
+
+   int_ses2_ahei=SES_2cat*ahei_avg_as;
+   int_ses2_amed=SES_2cat*amed_avg_as;
+   int_ses2_dash=SES_2cat*dash_avg_as;
+   int_ses2_hpdi=SES_2cat*hpdi_avg_as;
+   int_ses2_mind=SES_2cat*mind_avg_as;
+   int_ses2_phd=SES_2cat*phd_avg_as;
+   int_ses2_edih=SES_2cat*edih_avg_as;
+   int_ses2_edip=SES_2cat*edip_avg_as; 
+
+   int_alone_ahei=alone_ever*ahei_avg_as;
+   int_alone_amed=alone_ever*amed_avg_as;
+   int_alone_dash=alone_ever*dash_avg_as;
+   int_alone_hpdi=alone_ever*hpdi_avg_as;
+   int_alone_mind=alone_ever*mind_avg_as;
+   int_alone_phd=alone_ever*phd_avg_as;
+   int_alone_edih=alone_ever*edih_avg_as;
+   int_alone_edip=alone_ever*edip_avg_as; 
+
+   int_alco_ahei=alco_avg*ahei_avg_as;
+   int_alco_amed=alco_avg*amed_avg_as;
+   int_alco_dash=alco_avg*dash_avg_as;
+   int_alco_hpdi=alco_avg*hpdi_avg_as;
+   int_alco_mind=alco_avg*mind_avg_as;
+   int_alco_phd=alco_avg*phd_avg_as;
+   int_alco_edih=alco_avg*edih_avg_as;
+   int_alco_edip=alco_avg*edip_avg_as; 
+
+   int_alco2_ahei=alco_2cat*ahei_avg_as;
+   int_alco2_amed=alco_2cat*amed_avg_as;
+   int_alco2_dash=alco_2cat*dash_avg_as;
+   int_alco2_hpdi=alco_2cat*hpdi_avg_as;
+   int_alco2_mind=alco_2cat*mind_avg_as;
+   int_alco2_phd=alco_2cat*phd_avg_as;
+   int_alco2_edih=alco_2cat*edih_avg_as;
+   int_alco2_edip=alco_2cat*edip_avg_as; 
+
+   int_pa_ahei=pa_avg*ahei_avg_as;
+   int_pa_amed=pa_avg*amed_avg_as;
+   int_pa_dash=pa_avg*dash_avg_as;
+   int_pa_hpdi=pa_avg*hpdi_avg_as;
+   int_pa_mind=pa_avg*mind_avg_as;
+   int_pa_phd=pa_avg*phd_avg_as;
+   int_pa_edih=pa_avg*edih_avg_as;
+   int_pa_edip=pa_avg*edip_avg_as;
+
+   int_pa2_ahei=pa_2cat*ahei_avg_as;
+   int_pa2_amed=pa_2cat*amed_avg_as;
+   int_pa2_dash=pa_2cat*dash_avg_as;
+   int_pa2_hpdi=pa_2cat*hpdi_avg_as;
+   int_pa2_mind=pa_2cat*mind_avg_as;
+   int_pa2_phd=pa_2cat*phd_avg_as;
+   int_pa2_edih=pa_2cat*edih_avg_as;
+   int_pa2_edip=pa_2cat*edip_avg_as;
+
+
+   int_smk_ahei=smk_2cat*ahei_avg_as;
+   int_smk_amed=smk_2cat*amed_avg_as;
+   int_smk_dash=smk_2cat*dash_avg_as;
+   int_smk_hpdi=smk_2cat*hpdi_avg_as;
+   int_smk_mind=smk_2cat*mind_avg_as;
+   int_smk_phd=smk_2cat*phd_avg_as;
+   int_smk_edih=smk_2cat*edih_avg_as;
+   int_smk_edip=smk_2cat*edip_avg_as;
+
+
+   int_white_ahei=white*ahei_avg_as;
+   int_white_amed=white*amed_avg_as;
+   int_white_dash=white*dash_avg_as;
+   int_white_hpdi=white*hpdi_avg_as;
+   int_white_mind=white*mind_avg_as;
+   int_white_phd=white*phd_avg_as;
+   int_white_edih=white*edih_avg_as;
+   int_white_edip=white*edip_avg_as; 
+
+run;
+
+/* Logistic Regression Model - macro */
+
+%macro logist(var1,dep,mvout);
+
+   proc logistic data=aging_pool;
+      class race_new(ref="1") pmh(ref="1") smk(ref="1");
+      model &dep(event='1')=&var1 sex age86 /clparm=wald ;
+     
+      ods output ParameterEstimates=pe2;
+      ods output  OddsRatios=or2;
+   run;
+
+   ODS OUTPUT CLOSE;
+   
+   data or2;
+      set or2;
+      RR=put(OddsRatioEst,4.2)|| ' (' ||put(LowerCL,4.2)|| ', ' ||put(UpperCL,4.2)|| ')';
+      newid=_N_;
+      keep  newid RR;
+   run;
+   
+   data pe2;
+      set pe2;
+      newid=_N_ -1;
+      keep newid Variable ProbChiSq;
+   run;
+
+   data &mvout;
+      merge pe2 or2;
+      by newid;
+      keep newid Variable RR ProbChiSq;
+   run;
+
+%mend logist;
+
+
+
+/* without sex */
+%macro logist_sex(var1,dep,mvout);
+
+   proc logistic data=aging_pool;
+      class race_new(ref="1") pmh(ref="1") smk(ref="1");
+      model &dep(event='1')=&var1 age86 /clparm=wald ;
+     
+      ods output ParameterEstimates=pe2;
+      ods output  OddsRatios=or2;
+   run;
+
+   ODS OUTPUT CLOSE;
+   
+   data or2;
+      set or2;
+      RR=put(OddsRatioEst,4.2)|| ' (' ||put(LowerCL,4.2)|| ', ' ||put(UpperCL,4.2)|| ')';
+      newid=_N_;
+      keep  newid RR;
+   run;
+   
+   data pe2;
+      set pe2;
+      newid=_N_ -1;
+      keep newid Variable ProbChiSq;
+   run;
+
+   data &mvout;
+      merge pe2 or2;
+      by newid;
+      keep newid Variable RR ProbChiSq;
+   run;
+
+%mend logist_sex;
+
+
+/* without race_new */
+%macro logist_white(var1,dep,mvout);
+
+   proc logistic data=aging_pool;
+      class pmh(ref="1") smk(ref="1");
+      model &dep(event='1')=&var1 age86 /clparm=wald ;
+     
+      ods output ParameterEstimates=pe2;
+      ods output  OddsRatios=or2;
+   run;
+
+   ODS OUTPUT CLOSE;
+   
+   data or2;
+      set or2;
+      RR=put(OddsRatioEst,4.2)|| ' (' ||put(LowerCL,4.2)|| ', ' ||put(UpperCL,4.2)|| ')';
+      newid=_N_;
+      keep  newid RR;
+   run;
+   
+   data pe2;
+      set pe2;
+      newid=_N_ -1;
+      keep newid Variable ProbChiSq;
+   run;
+
+   data &mvout;
+      merge pe2 or2;
+      by newid;
+      keep newid Variable RR ProbChiSq;
+   run;
+
+%mend logist_white;
+
+
+
+/* BMI */
+
+%logist(var1=int_bmi_ahei  ahei_avg_as bmi_avg, dep=healthy_ager_full, mvout=ahei_cont_results);
+%logist(var1=int_bmi_ahei  ahei_avg_as bmi_avg race_new alone_ever marry_base nSES_86 mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=ahei_cont_results_MV);
+
+%logist(var1=int_bmi_amed  amed_avg_as bmi_avg, dep=healthy_ager_full, mvout=amed_cont_results);
+%logist(var1=int_bmi_amed amed_avg_as bmi_avg race_new alone_ever marry_base nSES_86 mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=amed_cont_results_MV);
+
+%logist(var1=int_bmi_dash dash_avg_as bmi_avg , dep=healthy_ager_full, mvout=dash_cont_results);
+%logist(var1=int_bmi_dash dash_avg_as bmi_avg race_new alone_ever marry_base nSES_86 mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=dash_cont_results_MV);
+
+%logist(var1=int_bmi_mind mind_avg_as bmi_avg, dep=healthy_ager_full, mvout=mind_cont_results);
+%logist(var1=int_bmi_mind mind_avg_as bmi_avg race_new alone_ever marry_base nSES_86 mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=mind_cont_results_MV);
+
+%logist(var1=int_bmi_hpdi hpdi_avg_as bmi_avg, dep=healthy_ager_full, mvout=hpdi_cont_results);
+%logist(var1=int_bmi_hpdi hpdi_avg_as bmi_avg race_new alone_ever marry_base nSES_86 mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=hpdi_cont_results_MV);
+
+%logist(var1=int_bmi_phd phd_avg_as bmi_avg, dep=healthy_ager_full, mvout=phd_cont_results);
+%logist(var1=int_bmi_phd phd_avg_as bmi_avg race_new alone_ever marry_base nSES_86 mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=phd_cont_results_MV);
+
+%logist(var1=int_bmi_edih edih_avg_as bmi_avg, dep=healthy_ager_full, mvout=edih_cont_results);
+%logist(var1=int_bmi_edih edih_avg_as bmi_avg race_new alone_ever marry_base nSES_86 mvever pmh smk pa_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=edih_cont_results_MV);
+
+%logist(var1=int_bmi_edip edip_avg_as bmi_avg, dep=healthy_ager_full, mvout=edip_cont_results);
+%logist(var1=int_bmi_edip edip_avg_as bmi_avg race_new alone_ever marry_base nSES_86 mvever pmh smk pa_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=edip_cont_results_MV);
+
+ods html file='/udd/nhtes/git/healthy-aging/subgroup/pool.interaction.BMI.xls';
+
+proc print data=ahei_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=ahei_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=amed_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "amed and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=amed_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "amed and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=dash_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "dash and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=dash_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "dash and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=mind_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "mind and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=mind_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "mind and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=hpdi_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=hpdi_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+proc print data=phd_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "phd and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=phd_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "phd and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+proc print data=edih_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "edih and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=edih_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "edih and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=edip_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "edip and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=edip_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "edip and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+ods html close; 
+
+
+
+
+/* ALONE */
+
+%logist(var1=int_alone_ahei  ahei_avg_as alone_ever, dep=healthy_ager_full, mvout=ahei_cont_results);
+%logist(var1=int_alone_ahei  ahei_avg_as alone_ever race_new bmi_avg marry_base nSES_86 mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=ahei_cont_results_MV);
+
+%logist(var1=int_alone_amed  amed_avg_as alone_ever, dep=healthy_ager_full, mvout=amed_cont_results);
+%logist(var1=int_alone_amed amed_avg_as alone_ever race_new bmi_avg marry_base nSES_86 mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=amed_cont_results_MV);
+
+%logist(var1=int_alone_dash dash_avg_as alone_ever , dep=healthy_ager_full, mvout=dash_cont_results);
+%logist(var1=int_alone_dash dash_avg_as alone_ever race_new bmi_avg marry_base nSES_86 mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=dash_cont_results_MV);
+
+%logist(var1=int_alone_mind mind_avg_as alone_ever, dep=healthy_ager_full, mvout=mind_cont_results);
+%logist(var1=int_alone_mind mind_avg_as alone_ever race_new bmi_avg marry_base nSES_86 mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=mind_cont_results_MV);
+
+%logist(var1=int_alone_hpdi hpdi_avg_as alone_ever, dep=healthy_ager_full, mvout=hpdi_cont_results);
+%logist(var1=int_alone_hpdi hpdi_avg_as alone_ever race_new bmi_avg marry_base nSES_86 mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=hpdi_cont_results_MV);
+
+%logist(var1=int_alone_phd phd_avg_as alone_ever, dep=healthy_ager_full, mvout=phd_cont_results);
+%logist(var1=int_alone_phd phd_avg_as alone_ever race_new bmi_avg marry_base nSES_86 mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=phd_cont_results_MV);
+
+%logist(var1=int_alone_edih edih_avg_as alone_ever, dep=healthy_ager_full, mvout=edih_cont_results);
+%logist(var1=int_alone_edih edih_avg_as alone_ever race_new bmi_avg marry_base nSES_86 mvever pmh smk pa_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=edih_cont_results_MV);
+
+%logist(var1=int_alone_edip edip_avg_as alone_ever, dep=healthy_ager_full, mvout=edip_cont_results);
+%logist(var1=int_alone_edip edip_avg_as alone_ever race_new bmi_avg marry_base nSES_86 mvever pmh smk pa_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=edip_cont_results_MV);
+
+ods html file='/udd/nhtes/git/healthy-aging/subgroup/pool.interaction.alone.xls';
+
+proc print data=ahei_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=ahei_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=amed_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "amed and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=amed_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "amed and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=dash_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "dash and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=dash_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "dash and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=mind_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "mind and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=mind_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "mind and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=hpdi_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=hpdi_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+proc print data=phd_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "phd and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=phd_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "phd and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+proc print data=edih_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "edih and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=edih_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "edih and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=edip_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "edip and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=edip_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "edip and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+ods html close; 
+
+
+
+
+/* SES */
+
+%logist(var1=int_ses_ahei  ahei_avg_as nSES_86, dep=healthy_ager_full, mvout=ahei_cont_results);
+%logist(var1=int_ses_ahei  ahei_avg_as nSES_86 race_new bmi_avg marry_base alone_ever mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=ahei_cont_results_MV);
+
+%logist(var1=int_ses_amed  amed_avg_as nSES_86, dep=healthy_ager_full, mvout=amed_cont_results);
+%logist(var1=int_ses_amed amed_avg_as nSES_86 race_new bmi_avg marry_base alone_ever mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=amed_cont_results_MV);
+
+%logist(var1=int_ses_dash dash_avg_as nSES_86 , dep=healthy_ager_full, mvout=dash_cont_results);
+%logist(var1=int_ses_dash dash_avg_as nSES_86 race_new bmi_avg marry_base alone_ever mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=dash_cont_results_MV);
+
+%logist(var1=int_ses_mind mind_avg_as nSES_86, dep=healthy_ager_full, mvout=mind_cont_results);
+%logist(var1=int_ses_mind mind_avg_as nSES_86 race_new bmi_avg marry_base alone_ever mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=mind_cont_results_MV);
+
+%logist(var1=int_ses_hpdi hpdi_avg_as nSES_86, dep=healthy_ager_full, mvout=hpdi_cont_results);
+%logist(var1=int_ses_hpdi hpdi_avg_as nSES_86 race_new bmi_avg marry_base alone_ever mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=hpdi_cont_results_MV);
+
+%logist(var1=int_ses_phd phd_avg_as nSES_86, dep=healthy_ager_full, mvout=phd_cont_results);
+%logist(var1=int_ses_phd phd_avg_as nSES_86 race_new bmi_avg marry_base alone_ever mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=phd_cont_results_MV);
+
+%logist(var1=int_ses_edih edih_avg_as nSES_86, dep=healthy_ager_full, mvout=edih_cont_results);
+%logist(var1=int_ses_edih edih_avg_as nSES_86 race_new bmi_avg marry_base alone_ever mvever pmh smk pa_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=edih_cont_results_MV);
+
+%logist(var1=int_ses_edip edip_avg_as nSES_86, dep=healthy_ager_full, mvout=edip_cont_results);
+%logist(var1=int_ses_edip edip_avg_as nSES_86 race_new bmi_avg marry_base alone_ever mvever pmh smk pa_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=edip_cont_results_MV);
+
+ods html file='/udd/nhtes/git/healthy-aging/subgroup/pool.interaction.ses.xls';
+
+proc print data=ahei_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=ahei_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=amed_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "amed and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=amed_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "amed and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=dash_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "dash and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=dash_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "dash and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=mind_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "mind and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=mind_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "mind and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=hpdi_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=hpdi_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+proc print data=phd_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "phd and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=phd_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "phd and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+proc print data=edih_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "edih and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=edih_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "edih and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=edip_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "edip and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=edip_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "edip and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+ods html close; 
+
+
+
+
+
+/* ALCOHOL - should probably use the dietary score without alcohol */
+
+%logist(var1=int_alco_ahei  ahei_avg_as alco_avg, dep=healthy_ager_full, mvout=ahei_cont_results);
+%logist(var1=int_alco_ahei  ahei_avg_as alco_avg race_new bmi_avg marry_base alone_ever mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=ahei_cont_results_MV);
+
+%logist(var1=int_alco_amed  amed_avg_as alco_avg, dep=healthy_ager_full, mvout=amed_cont_results);
+%logist(var1=int_alco_amed amed_avg_as alco_avg race_new bmi_avg marry_base alone_ever mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=amed_cont_results_MV);
+
+%logist(var1=int_alco_dash dash_avg_as alco_avg , dep=healthy_ager_full, mvout=dash_cont_results);
+%logist(var1=int_alco_dash dash_avg_as alco_avg race_new bmi_avg marry_base alone_ever mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=dash_cont_results_MV);
+
+%logist(var1=int_alco_mind mind_avg_as alco_avg, dep=healthy_ager_full, mvout=mind_cont_results);
+%logist(var1=int_alco_mind mind_avg_as alco_avg race_new bmi_avg marry_base alone_ever mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=mind_cont_results_MV);
+
+%logist(var1=int_alco_hpdi hpdi_avg_as alco_avg, dep=healthy_ager_full, mvout=hpdi_cont_results);
+%logist(var1=int_alco_hpdi hpdi_avg_as alco_avg race_new bmi_avg marry_base alone_ever mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=hpdi_cont_results_MV);
+
+%logist(var1=int_alco_phd phd_avg_as alco_avg, dep=healthy_ager_full, mvout=phd_cont_results);
+%logist(var1=int_alco_phd phd_avg_as alco_avg race_new bmi_avg marry_base alone_ever mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=phd_cont_results_MV);
+
+%logist(var1=int_alco_edih edih_avg_as alco_avg, dep=healthy_ager_full, mvout=edih_cont_results);
+%logist(var1=int_alco_edih edih_avg_as alco_avg race_new bmi_avg marry_base alone_ever mvever pmh smk pa_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=edih_cont_results_MV);
+
+%logist(var1=int_alco_edip edip_avg_as alco_avg, dep=healthy_ager_full, mvout=edip_cont_results);
+%logist(var1=int_alco_edip edip_avg_as alco_avg race_new bmi_avg marry_base alone_ever mvever pmh smk pa_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=edip_cont_results_MV);
+
+ods html file='/udd/nhtes/git/healthy-aging/subgroup/pool.interaction.alco.xls';
+
+proc print data=ahei_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=ahei_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=amed_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "amed and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=amed_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "amed and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=dash_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "dash and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=dash_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "dash and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=mind_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "mind and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=mind_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "mind and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=hpdi_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=hpdi_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+proc print data=phd_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "phd and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=phd_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "phd and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+proc print data=edih_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "edih and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=edih_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "edih and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=edip_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "edip and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=edip_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "edip and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+ods html close; 
+
+
+
+
+
+/* SMOKE  */
+
+%logist(var1=int_smk_ahei  ahei_avg_as  smk_2cat, dep=healthy_ager_full, mvout=ahei_cont_results);
+%logist(var1=int_smk_ahei  ahei_avg_as  smk_2cat race_new bmi_avg marry_base alone_ever mvever pmh pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=ahei_cont_results_MV);
+
+%logist(var1=int_smk_amed  amed_avg_as  smk_2cat, dep=healthy_ager_full, mvout=amed_cont_results);
+%logist(var1=int_smk_amed amed_avg_as smk_2cat race_new bmi_avg marry_base alone_ever mvever pmh pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=amed_cont_results_MV);
+
+%logist(var1=int_smk_dash dash_avg_as smk_2cat , dep=healthy_ager_full, mvout=dash_cont_results);
+%logist(var1=int_smk_dash dash_avg_as smk_2cat race_new bmi_avg marry_base alone_ever mvever pmh pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=dash_cont_results_MV);
+
+%logist(var1=int_smk_mind mind_avg_as smk_2cat, dep=healthy_ager_full, mvout=mind_cont_results);
+%logist(var1=int_smk_mind mind_avg_as smk_2cat race_new bmi_avg marry_base alone_ever mvever pmh pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=mind_cont_results_MV);
+
+%logist(var1=int_smk_hpdi hpdi_avg_as smk_2cat, dep=healthy_ager_full, mvout=hpdi_cont_results);
+%logist(var1=int_smk_hpdi hpdi_avg_as smk_2cat race_new bmi_avg marry_base alone_ever mvever pmh pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=hpdi_cont_results_MV);
+
+%logist(var1=int_smk_phd phd_avg_as smk_2cat, dep=healthy_ager_full, mvout=phd_cont_results);
+%logist(var1=int_smk_phd phd_avg_as smk_2cat race_new bmi_avg marry_base alone_ever mvever pmh pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=phd_cont_results_MV);
+
+%logist(var1=int_smk_edih edih_avg_as smk_2cat, dep=healthy_ager_full, mvout=edih_cont_results);
+%logist(var1=int_smk_edih edih_avg_as smk_2cat race_new bmi_avg marry_base alone_ever mvever pmh pa_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=edih_cont_results_MV);
+
+%logist(var1=int_smk_edip edip_avg_as smk_2cat, dep=healthy_ager_full, mvout=edip_cont_results);
+%logist(var1=int_smk_edip edip_avg_as smk_2cat race_new bmi_avg marry_base alone_ever mvever pmh pa_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=edip_cont_results_MV);
+
+ods html file='/udd/nhtes/git/healthy-aging/subgroup/pool.interaction.smk.xls';
+
+proc print data=ahei_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=ahei_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=amed_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "amed and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=amed_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "amed and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=dash_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "dash and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=dash_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "dash and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=mind_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "mind and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=mind_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "mind and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=hpdi_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=hpdi_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+proc print data=phd_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "phd and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=phd_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "phd and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+proc print data=edih_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "edih and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=edih_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "edih and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=edip_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "edip and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=edip_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "edip and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+ods html close; 
+
+
+
+
+/* PHYS ACT  */
+
+%logist(var1=int_pa_ahei  ahei_avg_as  pa_avg, dep=healthy_ager_full, mvout=ahei_cont_results);
+%logist(var1=int_pa_ahei  ahei_avg_as  pa_avg race_new bmi_avg marry_base alone_ever mvever pmh smk 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=ahei_cont_results_MV);
+
+%logist(var1=int_pa_amed  amed_avg_as  pa_avg, dep=healthy_ager_full, mvout=amed_cont_results);
+%logist(var1=int_pa_amed amed_avg_as pa_avg race_new bmi_avg marry_base alone_ever mvever pmh smk 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=amed_cont_results_MV);
+
+%logist(var1=int_pa_dash dash_avg_as pa_avg , dep=healthy_ager_full, mvout=dash_cont_results);
+%logist(var1=int_pa_dash dash_avg_as pa_avg race_new bmi_avg marry_base alone_ever mvever pmh smk alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=dash_cont_results_MV);
+
+%logist(var1=int_pa_mind mind_avg_as pa_avg, dep=healthy_ager_full, mvout=mind_cont_results);
+%logist(var1=int_pa_mind mind_avg_as pa_avg race_new bmi_avg marry_base alone_ever mvever pmh smk 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=mind_cont_results_MV);
+
+%logist(var1=int_pa_hpdi hpdi_avg_as pa_avg, dep=healthy_ager_full, mvout=hpdi_cont_results);
+%logist(var1=int_pa_hpdi hpdi_avg_as pa_avg race_new bmi_avg marry_base alone_ever mvever pmh smk alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=hpdi_cont_results_MV);
+
+%logist(var1=int_pa_phd phd_avg_as pa_avg, dep=healthy_ager_full, mvout=phd_cont_results);
+%logist(var1=int_pa_phd phd_avg_as pa_avg race_new bmi_avg marry_base alone_ever mvever pmh smk alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=phd_cont_results_MV);
+
+%logist(var1=int_pa_edih edih_avg_as pa_avg, dep=healthy_ager_full, mvout=edih_cont_results);
+%logist(var1=int_pa_edih edih_avg_as pa_avg race_new bmi_avg marry_base alone_ever mvever pmh smk
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=edih_cont_results_MV);
+
+%logist(var1=int_pa_edip edip_avg_as pa_avg, dep=healthy_ager_full, mvout=edip_cont_results);
+%logist(var1=int_pa_edip edip_avg_as pa_avg race_new bmi_avg marry_base alone_ever mvever pmh smk
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=edip_cont_results_MV);
+
+ods html file='/udd/nhtes/git/healthy-aging/subgroup/pool.interaction.pa.xls';
+
+proc print data=ahei_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=ahei_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=amed_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "amed and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=amed_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "amed and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=dash_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "dash and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=dash_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "dash and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=mind_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "mind and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=mind_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "mind and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=hpdi_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=hpdi_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+proc print data=phd_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "phd and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=phd_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "phd and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+proc print data=edih_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "edih and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=edih_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "edih and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=edip_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "edip and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=edip_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "edip and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+ods html close; 
+
+
+
+
+
+
+
+/* SEX */
+
+%logist_sex(var1=int_sex_ahei  ahei_avg_as sex, dep=healthy_ager_full, mvout=ahei_cont_results);
+%logist_sex(var1=int_sex_ahei  ahei_avg_as sex race_new bmi_avg marry_base nSES_86 mvever pmh smk pa_avg alone_ever
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=ahei_cont_results_MV);
+
+%logist_sex(var1=int_sex_amed  amed_avg_as sex, dep=healthy_ager_full, mvout=amed_cont_results);
+%logist_sex(var1=int_sex_amed amed_avg_as sex race_new bmi_avg marry_base nSES_86 mvever pmh smk pa_avg alone_ever
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=amed_cont_results_MV);
+
+%logist_sex(var1=int_sex_dash dash_avg_as sex , dep=healthy_ager_full, mvout=dash_cont_results);
+%logist_sex(var1=int_sex_dash dash_avg_as sex race_new bmi_avg marry_base nSES_86 mvever pmh smk pa_avg alco_avg alone_ever
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=dash_cont_results_MV);
+
+%logist_sex(var1=int_sex_mind mind_avg_as sex, dep=healthy_ager_full, mvout=mind_cont_results);
+%logist_sex(var1=int_sex_mind mind_avg_as sex race_new bmi_avg marry_base nSES_86 mvever pmh smk pa_avg alone_ever
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=mind_cont_results_MV);
+
+%logist_sex(var1=int_sex_hpdi hpdi_avg_as sex, dep=healthy_ager_full, mvout=hpdi_cont_results);
+%logist_sex(var1=int_sex_hpdi hpdi_avg_as sex race_new bmi_avg marry_base nSES_86 mvever pmh smk pa_avg alco_avg alone_ever
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=hpdi_cont_results_MV);
+
+%logist_sex(var1=int_sex_phd phd_avg_as sex, dep=healthy_ager_full, mvout=phd_cont_results);
+%logist_sex(var1=int_sex_phd phd_avg_as sex race_new bmi_avg marry_base nSES_86 mvever pmh smk pa_avg alco_avg alone_ever
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=phd_cont_results_MV);
+
+%logist_sex(var1=int_sex_edih edih_avg_as sex, dep=healthy_ager_full, mvout=edih_cont_results);
+%logist_sex(var1=int_sex_edih edih_avg_as sex race_new bmi_avg marry_base nSES_86 mvever pmh smk pa_avg alone_ever
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=edih_cont_results_MV);
+
+%logist_sex(var1=int_sex_edip edip_avg_as sex, dep=healthy_ager_full, mvout=edip_cont_results);
+%logist_sex(var1=int_sex_edip edip_avg_as sex race_new bmi_avg marry_base nSES_86 mvever pmh smk pa_avg alone_ever
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=edip_cont_results_MV);
+
+ods html file='/udd/nhtes/git/healthy-aging/subgroup/pool.interaction.sex.xls';
+
+proc print data=ahei_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=ahei_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=amed_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "amed and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=amed_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "amed and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=dash_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "dash and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=dash_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "dash and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=mind_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "mind and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=mind_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "mind and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=hpdi_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=hpdi_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+proc print data=phd_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "phd and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=phd_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "phd and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+proc print data=edih_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "edih and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=edih_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "edih and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=edip_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "edip and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=edip_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "edip and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+ods html close; 
+
+
+
+
+
+/* WHITE */
+
+%logist_white(var1=int_white_ahei  ahei_avg_as   white, dep=healthy_ager_full, mvout=ahei_cont_results);
+%logist_white(var1=int_white_ahei  ahei_avg_as   white   alone_ever  bmi_avg marry_base nSES_86 mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=ahei_cont_results_MV);
+
+%logist_white(var1=int_white_amed  amed_avg_as   white, dep=healthy_ager_full, mvout=amed_cont_results);
+%logist_white(var1=int_white_amed amed_avg_as   white   alone_ever  bmi_avg marry_base nSES_86 mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=amed_cont_results_MV);
+
+%logist_white(var1=int_white_dash dash_avg_as   white , dep=healthy_ager_full, mvout=dash_cont_results);
+%logist_white(var1=int_white_dash dash_avg_as   white   alone_ever  bmi_avg marry_base nSES_86 mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=dash_cont_results_MV);
+
+%logist_white(var1=int_white_mind mind_avg_as   white, dep=healthy_ager_full, mvout=mind_cont_results);
+%logist_white(var1=int_white_mind mind_avg_as   white   alone_ever  bmi_avg marry_base nSES_86 mvever pmh smk pa_avg 
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=mind_cont_results_MV);
+
+%logist_white(var1=int_white_hpdi hpdi_avg_as   white, dep=healthy_ager_full, mvout=hpdi_cont_results);
+%logist_white(var1=int_white_hpdi hpdi_avg_as   white   alone_ever  bmi_avg marry_base nSES_86 mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=hpdi_cont_results_MV);
+
+%logist_white(var1=int_white_phd phd_avg_as   white, dep=healthy_ager_full, mvout=phd_cont_results);
+%logist_white(var1=int_white_phd phd_avg_as   white   alone_ever  bmi_avg marry_base nSES_86 mvever pmh smk pa_avg alco_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=phd_cont_results_MV);
+
+%logist_white(var1=int_white_edih edih_avg_as   white, dep=healthy_ager_full, mvout=edih_cont_results);
+%logist_white(var1=int_white_edih edih_avg_as   white   alone_ever  bmi_avg marry_base nSES_86 mvever pmh smk pa_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=edih_cont_results_MV);
+
+%logist_white(var1=int_white_edip edip_avg_as   white, dep=healthy_ager_full, mvout=edip_cont_results);
+%logist_white(var1=int_white_edip edip_avg_as   white   alone_ever  bmi_avg marry_base nSES_86 mvever pmh smk pa_avg
+depres famdem hx_can hx_db hx_cvd cafh mifh dbfh, dep=healthy_ager_full, mvout=edip_cont_results_MV);
+
+ods html file='/udd/nhtes/git/healthy-aging/subgroup/pool.interaction.white.xls';
+
+proc print data=ahei_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=ahei_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "AHEI and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=amed_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "amed and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=amed_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "amed and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=dash_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "dash and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=dash_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "dash and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=mind_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "mind and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=mind_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "mind and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=hpdi_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=hpdi_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "hpdi and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+proc print data=phd_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "phd and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=phd_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "phd and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+proc print data=edih_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "edih and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=edih_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "edih and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+proc print data=edip_cont_results;
+   var   newid Variable RR ProbChiSq;
+   title "edip and healthy aging - energy adj and standardized (continuous)";
+run;
+proc print data=edip_cont_results_MV;
+   var   newid Variable RR ProbChiSq;
+   title "edip and healthy aging - energy adj and standardized (continuous) MV";
+run;
+
+
+ods html close; 
+
+
