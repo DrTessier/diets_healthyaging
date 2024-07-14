@@ -1,0 +1,512 @@
+
+dataset <- read.csv ('[dataset].csv', header=TRUE, sep=',')
+foodgrp_names <- read.csv ('[foodnames].csv', header=TRUE, sep=',')
+
+
+## convert categorical variables to factors
+factor=c("sex", "cohort", "race_new", "alone_ever", "marry_base", "mvever", "pmh" ,"smk",
+"depres", "famdem", "hx_can", "hx_db" ,"hx_cvd", "cafh", "mifh", "dbfh", "healthy_ager_full", "imp_cog_func", "imp_phys_func",
+"imp_mental", "reached_70", "alldisease_2016") 
+for (i in 1:length(factor)){
+  dataset[, factor[i]]=as.factor(dataset[, factor[i]])
+}
+
+## relevel impaired to intact
+dataset_edit <- dataset %>% 
+  mutate(imp_cog_func = factor(imp_cog_func, levels = c("1", "0"))) %>% 
+  mutate(imp_phys_func = factor(imp_phys_func, levels = c("1", "0"))) %>% 
+   mutate(imp_mental = factor(imp_mental, levels = c("1", "0"))) %>% 
+   mutate(alldisease_2016 = factor(alldisease_2016, levels = c("1", "0"))) 
+
+## Linear regressions of the association between single metabolites and lifestyle score (ordinal)
+
+
+foodgroups_matrix <- dataset_edit[,c(240:262, 264, 266:274, 279:308)] 
+
+colnames(foodgroups_matrix)
+
+
+###################################
+#### Intact cognitive function ####
+###################################
+
+log_model1_output_diet <- lapply(1:ncol(foodgroups_matrix), function(x) glm(imp_cog_func ~ foodgroups_matrix[,x] + age86 + sex, data = dataset_edit, family = "binomial"))
+
+summaries_diet <- lapply(log_model1_output_diet, summary)
+myestimate <- lapply(summaries_diet, function(x) round(x$coefficients[2,1], 2))
+mycoef_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1]), 2))
+mylowerbound_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1] -1.96*x$coefficients[2,2]), 2))
+myupperbound_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1] +1.96*x$coefficients[2,2]), 2))
+pvalue_diet <- lapply(summaries_diet, function(x) x$coefficients[2,4])
+pvalue_diet_bon <- as.list(p.adjust(pvalue_diet, method="bonferroni", n=length(foodgroups_matrix))) 
+pvalue_diet_fdr <- as.list(p.adjust(pvalue_diet, method="BH", n=length(foodgroups_matrix)))
+
+
+log_model2_output_diet <- lapply(1:ncol(foodgroups_matrix), function(x) glm(imp_cog_func ~ foodgroups_matrix[,x] +
+ age86 + sex + race_new + alone_ever + marry_base + nSES_86 + bmi_avg + mvever + pmh + smk + pa_avg + alco_avg +
+depres + famdem + hx_can + hx_db + hx_cvd + cafh + mifh + dbfh, data = dataset_edit, family = "binomial"))
+
+summaries_diet_2 <- lapply(log_model2_output_diet, summary)
+myestimate_2 <- lapply(summaries_diet_2, function(x) round(x$coefficients[2,1], 2))
+mycoef_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1]), 2))
+mylowerbound_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1] -1.96*x$coefficients[2,2]), 2))
+myupperbound_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1] +1.96*x$coefficients[2,2]), 2))
+pvalue_diet_2 <- lapply(summaries_diet_2, function(x) x$coefficients[2,4])
+pvalue_diet_2_bon <- as.list(p.adjust(pvalue_diet_2, method="bonferroni", n=length(foodgroups_matrix))) 
+pvalue_diet_2_fdr <- as.list(p.adjust(pvalue_diet_2, method="BH", n=length(foodgroups_matrix)))
+
+
+together_diet <- paste(format(mycoef_diet_2, nsmall=2), " (",
+       format(mylowerbound_diet_2, nsmall=2), "$ ",
+       format(myupperbound_diet_2, nsmall=2), ") ", sep="")
+
+
+## writing out the results file
+# for base - model 1 and 2
+m1_diet <- c()
+m1_diet <- cbind(colnames(foodgroups_matrix), myestimate, mycoef_diet, mylowerbound_diet, myupperbound_diet, pvalue_diet, pvalue_diet_bon, pvalue_diet_fdr, myestimate_2, mycoef_diet_2, mylowerbound_diet_2, myupperbound_diet_2, pvalue_diet_2, pvalue_diet_2_bon, pvalue_diet_2_fdr, together_diet)
+
+
+#### logistic regressions for alcohol-related variable by excluding alco_avg from the covariates 
+
+alco_matrix <- dataset_edit[,275:278] ##including tot alcohol, beer, wine and liquor
+
+log_model1_output_diet <- lapply(1:ncol(alco_matrix), function(x) glm(imp_cog_func ~ alco_matrix[,x] + sex + age86, data = dataset_edit, family = "binomial"))
+
+summaries_diet <- lapply(log_model1_output_diet, summary)
+myestimate <- lapply(summaries_diet, function(x) round(x$coefficients[2,1], 2))
+mycoef_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1]), 2))
+mylowerbound_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1] -1.96*x$coefficients[2,2]), 2))
+myupperbound_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1] +1.96*x$coefficients[2,2]), 2))
+pvalue_diet <- lapply(summaries_diet, function(x) x$coefficients[2,4])
+pvalue_diet_bon <- as.list(p.adjust(pvalue_diet, method="bonferroni", n=length(alco_matrix))) 
+pvalue_diet_fdr <- as.list(p.adjust(pvalue_diet, method="BH", n=length(alco_matrix)))
+
+
+log_model2_output_diet <- lapply(1:ncol(alco_matrix), function(x) glm(imp_cog_func ~ alco_matrix[,x] +
+ sex + age86 + race_new + alone_ever + marry_base + nSES_86 + bmi_avg + mvever + pmh + smk + pa_avg +
+depres + famdem + hx_can + hx_db + hx_cvd + cafh + mifh + dbfh, data = dataset_edit, family = "binomial"))
+
+summaries_diet_2 <- lapply(log_model2_output_diet, summary)
+myestimate_2 <- lapply(summaries_diet_2, function(x) round(x$coefficients[2,1], 2))
+mycoef_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1]), 2))
+mylowerbound_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1] -1.96*x$coefficients[2,2]), 2))
+myupperbound_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1] +1.96*x$coefficients[2,2]), 2))
+pvalue_diet_2 <- lapply(summaries_diet_2, function(x) x$coefficients[2,4])
+pvalue_diet_2_bon <- as.list(p.adjust(pvalue_diet_2, method="bonferroni", n=length(alco_matrix))) 
+pvalue_diet_2_fdr <- as.list(p.adjust(pvalue_diet_2, method="BH", n=length(alco_matrix)))
+
+
+together_diet <- paste(format(mycoef_diet_2, nsmall=2), " (",
+       format(mylowerbound_diet_2, nsmall=2), "$ ",
+       format(myupperbound_diet_2, nsmall=2), ") ", sep="")
+
+m2_diet <- c()
+m2_diet <- cbind(colnames(alco_matrix), myestimate, mycoef_diet, mylowerbound_diet, myupperbound_diet, pvalue_diet, pvalue_diet_bon, pvalue_diet_fdr, myestimate_2, mycoef_diet_2, mylowerbound_diet_2, myupperbound_diet_2, pvalue_diet_2, pvalue_diet_2_bon, pvalue_diet_2_fdr, together_diet)
+
+total_diet <- rbind(m1_diet, m2_diet)
+colnames(total_diet) <- c("Food Group", "B-mod1", "OR-mod1", "LB-mod1", "UB-mod1", "p-value-mod1", "p-value-mod1-bon", "p-value-mod1-fdr", "B-mod2", "OR-mod2", "LB-mod2", "UB-mod2", "p-value-mod2", "p-value-mod2-bon", "p-value-mod2-fdr", "together")
+
+write.table(total_diet, file = "[file].csv", sep=",", quote=F, row.names=F, col.names=T)
+
+### Merge with food group names
+Results_1 <- read.csv ('[file].csv', header=TRUE, sep=',')
+
+Results_main <- merge(Results_1, foodgrp_names, by.x="Food.Group", by.y="foodgrp_id", all.x=TRUE)
+save(Results_main, file = "[file].RData")
+
+
+### Overwrite with names
+write.table(Results_main, file = "[file].csv", sep=",", quote=F, row.names=F, col.names=T)
+
+
+
+##################################
+#### Intact physical function ####
+##################################
+
+### Intact cognition 
+log_model1_output_diet <- lapply(1:ncol(foodgroups_matrix), function(x) glm(imp_phys_func ~ foodgroups_matrix[,x] + age86 + sex, data = dataset_edit, family = "binomial"))
+
+summaries_diet <- lapply(log_model1_output_diet, summary)
+myestimate <- lapply(summaries_diet, function(x) round(x$coefficients[2,1], 2))
+mycoef_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1]), 2))
+mylowerbound_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1] -1.96*x$coefficients[2,2]), 2))
+myupperbound_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1] +1.96*x$coefficients[2,2]), 2))
+pvalue_diet <- lapply(summaries_diet, function(x) x$coefficients[2,4])
+pvalue_diet_bon <- as.list(p.adjust(pvalue_diet, method="bonferroni", n=length(foodgroups_matrix))) 
+pvalue_diet_fdr <- as.list(p.adjust(pvalue_diet, method="BH", n=length(foodgroups_matrix)))
+
+
+log_model2_output_diet <- lapply(1:ncol(foodgroups_matrix), function(x) glm(imp_phys_func ~ foodgroups_matrix[,x] +
+ age86 + sex + race_new + alone_ever + marry_base + nSES_86 + bmi_avg + mvever + pmh + smk + pa_avg + alco_avg +
+depres + famdem + hx_can + hx_db + hx_cvd + cafh + mifh + dbfh, data = dataset_edit, family = "binomial"))
+
+summaries_diet_2 <- lapply(log_model2_output_diet, summary)
+myestimate_2 <- lapply(summaries_diet_2, function(x) round(x$coefficients[2,1], 2))
+mycoef_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1]), 2))
+mylowerbound_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1] -1.96*x$coefficients[2,2]), 2))
+myupperbound_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1] +1.96*x$coefficients[2,2]), 2))
+pvalue_diet_2 <- lapply(summaries_diet_2, function(x) x$coefficients[2,4])
+pvalue_diet_2_bon <- as.list(p.adjust(pvalue_diet_2, method="bonferroni", n=length(foodgroups_matrix))) 
+pvalue_diet_2_fdr <- as.list(p.adjust(pvalue_diet_2, method="BH", n=length(foodgroups_matrix)))
+
+
+together_diet <- paste(format(mycoef_diet_2, nsmall=2), " (",
+       format(mylowerbound_diet_2, nsmall=2), "$ ",
+       format(myupperbound_diet_2, nsmall=2), ") ", sep="")
+
+
+## writing out the results file 
+# for base - model 1 and 2
+m1_diet <- c()
+m1_diet <- cbind(colnames(foodgroups_matrix), myestimate, mycoef_diet, mylowerbound_diet, myupperbound_diet, pvalue_diet, pvalue_diet_bon, pvalue_diet_fdr, myestimate_2, mycoef_diet_2, mylowerbound_diet_2, myupperbound_diet_2, pvalue_diet_2, pvalue_diet_2_bon, pvalue_diet_2_fdr, together_diet)
+# colnames(m1_diet) <- c("Metabolite", "OR-mod1", "LB-mod1", "UB-mod1", "p-value-mod1", "p-value-mod1-bon", "p-value-mod1-fdr", "OR-mod2", "LB-mod2", "UB-mod2", "p-value-mod2", "p-value-mod2-bon", "p-value-mod2-fdr", "together")
+
+
+#### logistic regressions for alcohol-related variable by excluding alco_avg from the covariates 
+
+log_model1_output_diet <- lapply(1:ncol(alco_matrix), function(x) glm(imp_phys_func ~ alco_matrix[,x] + sex + age86, data = dataset_edit, family = "binomial"))
+
+summaries_diet <- lapply(log_model1_output_diet, summary)
+myestimate <- lapply(summaries_diet, function(x) round(x$coefficients[2,1], 2))
+mycoef_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1]), 2))
+mylowerbound_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1] -1.96*x$coefficients[2,2]), 2))
+myupperbound_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1] +1.96*x$coefficients[2,2]), 2))
+pvalue_diet <- lapply(summaries_diet, function(x) x$coefficients[2,4])
+pvalue_diet_bon <- as.list(p.adjust(pvalue_diet, method="bonferroni", n=length(alco_matrix))) 
+pvalue_diet_fdr <- as.list(p.adjust(pvalue_diet, method="BH", n=length(alco_matrix)))
+
+
+log_model2_output_diet <- lapply(1:ncol(alco_matrix), function(x) glm(imp_phys_func ~ alco_matrix[,x] +
+ sex + age86 + race_new + alone_ever + marry_base + nSES_86 + bmi_avg + mvever + pmh + smk + pa_avg +
+depres + famdem + hx_can + hx_db + hx_cvd + cafh + mifh + dbfh, data = dataset_edit, family = "binomial"))
+
+summaries_diet_2 <- lapply(log_model2_output_diet, summary)
+myestimate_2 <- lapply(summaries_diet_2, function(x) round(x$coefficients[2,1], 2))
+mycoef_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1]), 2))
+mylowerbound_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1] -1.96*x$coefficients[2,2]), 2))
+myupperbound_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1] +1.96*x$coefficients[2,2]), 2))
+pvalue_diet_2 <- lapply(summaries_diet_2, function(x) x$coefficients[2,4])
+pvalue_diet_2_bon <- as.list(p.adjust(pvalue_diet_2, method="bonferroni", n=length(alco_matrix))) 
+pvalue_diet_2_fdr <- as.list(p.adjust(pvalue_diet_2, method="BH", n=length(alco_matrix)))
+
+
+together_diet <- paste(format(mycoef_diet_2, nsmall=2), " (",
+       format(mylowerbound_diet_2, nsmall=2), "$ ",
+       format(myupperbound_diet_2, nsmall=2), ") ", sep="")
+
+m2_diet <- c()
+m2_diet <- cbind(colnames(alco_matrix), myestimate, mycoef_diet, mylowerbound_diet, myupperbound_diet, pvalue_diet, pvalue_diet_bon, pvalue_diet_fdr, myestimate_2, mycoef_diet_2, mylowerbound_diet_2, myupperbound_diet_2, pvalue_diet_2, pvalue_diet_2_bon, pvalue_diet_2_fdr, together_diet)
+
+total_diet <- rbind(m1_diet, m2_diet)
+colnames(total_diet) <- c("Food Group", "B-mod1", "OR-mod1", "LB-mod1", "UB-mod1", "p-value-mod1", "p-value-mod1-bon", "p-value-mod1-fdr", "B-mod2", "OR-mod2", "LB-mod2", "UB-mod2", "p-value-mod2", "p-value-mod2-bon", "p-value-mod2-fdr", "together")
+
+write.table(total_diet, file = "[file].csv", sep=",", quote=F, row.names=F, col.names=T)
+
+### Merge with food group names
+Results_1 <- read.csv ('/udd/nhtes/git/healthy-aging/Figure_correlation/food_groups_results_phys_notmut.csv', header=TRUE, sep=',')
+
+Results_main <- merge(Results_1, foodgrp_names, by.x="Food.Group", by.y="foodgrp_id", all.x=TRUE)
+save(Results_main, file = "[file].RData")
+
+
+### Overwrite with names
+write.table(Results_main, file = "[file].csv", sep=",", quote=F, row.names=F, col.names=T)
+
+
+
+
+
+##############################
+#### Intact mental health ####
+##############################
+
+### Intact cognition 
+log_model1_output_diet <- lapply(1:ncol(foodgroups_matrix), function(x) glm(imp_mental ~ foodgroups_matrix[,x] + age86 + sex, data = dataset_edit, family = "binomial"))
+
+summaries_diet <- lapply(log_model1_output_diet, summary)
+myestimate <- lapply(summaries_diet, function(x) round(x$coefficients[2,1], 2))
+mycoef_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1]), 2))
+mylowerbound_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1] -1.96*x$coefficients[2,2]), 2))
+myupperbound_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1] +1.96*x$coefficients[2,2]), 2))
+pvalue_diet <- lapply(summaries_diet, function(x) x$coefficients[2,4])
+pvalue_diet_bon <- as.list(p.adjust(pvalue_diet, method="bonferroni", n=length(foodgroups_matrix))) 
+pvalue_diet_fdr <- as.list(p.adjust(pvalue_diet, method="BH", n=length(foodgroups_matrix)))
+
+
+log_model2_output_diet <- lapply(1:ncol(foodgroups_matrix), function(x) glm(imp_mental ~ foodgroups_matrix[,x] +
+ age86 + sex + race_new + alone_ever + marry_base + nSES_86 + bmi_avg + mvever + pmh + smk + pa_avg + alco_avg + 
+depres + famdem + hx_can + hx_db + hx_cvd + cafh + mifh + dbfh, data = dataset_edit, family = "binomial"))
+
+summaries_diet_2 <- lapply(log_model2_output_diet, summary)
+myestimate_2 <- lapply(summaries_diet_2, function(x) round(x$coefficients[2,1], 2))
+mycoef_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1]), 2))
+mylowerbound_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1] -1.96*x$coefficients[2,2]), 2))
+myupperbound_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1] +1.96*x$coefficients[2,2]), 2))
+pvalue_diet_2 <- lapply(summaries_diet_2, function(x) x$coefficients[2,4])
+pvalue_diet_2_bon <- as.list(p.adjust(pvalue_diet_2, method="bonferroni", n=length(foodgroups_matrix))) 
+pvalue_diet_2_fdr <- as.list(p.adjust(pvalue_diet_2, method="BH", n=length(foodgroups_matrix)))
+
+
+together_diet <- paste(format(mycoef_diet_2, nsmall=2), " (",
+       format(mylowerbound_diet_2, nsmall=2), "$ ",
+       format(myupperbound_diet_2, nsmall=2), ") ", sep="")
+
+
+## writing out the results file 
+# for base - model 1 and 2
+m1_diet <- c()
+m1_diet <- cbind(colnames(foodgroups_matrix), myestimate, mycoef_diet, mylowerbound_diet, myupperbound_diet, pvalue_diet, pvalue_diet_bon, pvalue_diet_fdr, myestimate_2, mycoef_diet_2, mylowerbound_diet_2, myupperbound_diet_2, pvalue_diet_2, pvalue_diet_2_bon, pvalue_diet_2_fdr, together_diet)
+# colnames(m1_diet) <- c("Metabolite", "OR-mod1", "LB-mod1", "UB-mod1", "p-value-mod1", "p-value-mod1-bon", "p-value-mod1-fdr", "OR-mod2", "LB-mod2", "UB-mod2", "p-value-mod2", "p-value-mod2-bon", "p-value-mod2-fdr", "together")
+
+
+#### logistic regressions for alcohol-related variable by excluding alco_avg from the covariates 
+
+log_model1_output_diet <- lapply(1:ncol(alco_matrix), function(x) glm(imp_mental ~ alco_matrix[,x] + sex + age86, data = dataset_edit, family = "binomial"))
+
+summaries_diet <- lapply(log_model1_output_diet, summary)
+myestimate <- lapply(summaries_diet, function(x) round(x$coefficients[2,1], 2))
+mycoef_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1]), 2))
+mylowerbound_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1] -1.96*x$coefficients[2,2]), 2))
+myupperbound_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1] +1.96*x$coefficients[2,2]), 2))
+pvalue_diet <- lapply(summaries_diet, function(x) x$coefficients[2,4])
+pvalue_diet_bon <- as.list(p.adjust(pvalue_diet, method="bonferroni", n=length(alco_matrix))) 
+pvalue_diet_fdr <- as.list(p.adjust(pvalue_diet, method="BH", n=length(alco_matrix)))
+
+log_model2_output_diet <- lapply(1:ncol(alco_matrix), function(x) glm(imp_mental ~ alco_matrix[,x] +
+ sex + age86 + race_new + alone_ever + marry_base + nSES_86 + bmi_avg + mvever + pmh + smk + pa_avg +
+depres + famdem + hx_can + hx_db + hx_cvd + cafh + mifh + dbfh, data = dataset_edit, family = "binomial"))
+
+summaries_diet_2 <- lapply(log_model2_output_diet, summary)
+myestimate_2 <- lapply(summaries_diet_2, function(x) round(x$coefficients[2,1], 2))
+mycoef_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1]), 2))
+mylowerbound_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1] -1.96*x$coefficients[2,2]), 2))
+myupperbound_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1] +1.96*x$coefficients[2,2]), 2))
+pvalue_diet_2 <- lapply(summaries_diet_2, function(x) x$coefficients[2,4])
+pvalue_diet_2_bon <- as.list(p.adjust(pvalue_diet_2, method="bonferroni", n=length(alco_matrix))) 
+pvalue_diet_2_fdr <- as.list(p.adjust(pvalue_diet_2, method="BH", n=length(alco_matrix)))
+
+
+together_diet <- paste(format(mycoef_diet_2, nsmall=2), " (",
+       format(mylowerbound_diet_2, nsmall=2), "$ ",
+       format(myupperbound_diet_2, nsmall=2), ") ", sep="")
+
+m2_diet <- c()
+m2_diet <- cbind(colnames(alco_matrix), myestimate, mycoef_diet, mylowerbound_diet, myupperbound_diet, pvalue_diet, pvalue_diet_bon, pvalue_diet_fdr, myestimate_2, mycoef_diet_2, mylowerbound_diet_2, myupperbound_diet_2, pvalue_diet_2, pvalue_diet_2_bon, pvalue_diet_2_fdr, together_diet)
+
+total_diet <- rbind(m1_diet, m2_diet)
+colnames(total_diet) <- c("Food Group", "B-mod1", "OR-mod1", "LB-mod1", "UB-mod1", "p-value-mod1", "p-value-mod1-bon", "p-value-mod1-fdr", "B-mod2", "OR-mod2", "LB-mod2", "UB-mod2", "p-value-mod2", "p-value-mod2-bon", "p-value-mod2-fdr", "together")
+
+write.table(total_diet, file = "[file]", sep=",", quote=F, row.names=F, col.names=T)
+
+### Merge with food group names
+Results_1 <- read.csv ('[file].csv', header=TRUE, sep=',')
+
+Results_main <- merge(Results_1, foodgrp_names, by.x="Food.Group", by.y="foodgrp_id", all.x=TRUE)
+# save(Results_main, file = "[file].RData")
+
+
+### Overwrite with names
+write.table(Results_main, file = "[file].csv", sep=",", quote=F, row.names=F, col.names=T)
+
+
+
+
+
+
+
+############################
+#### No chronic disease ####
+############################
+
+### No chronic disease 
+log_model1_output_diet <- lapply(1:ncol(foodgroups_matrix), function(x) glm(alldisease_2016 ~ foodgroups_matrix[,x] + age86 + sex, data = dataset_edit, family = "binomial"))
+
+summaries_diet <- lapply(log_model1_output_diet, summary)
+myestimate <- lapply(summaries_diet, function(x) round(x$coefficients[2,1], 2))
+mycoef_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1]), 2))
+mylowerbound_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1] -1.96*x$coefficients[2,2]), 2))
+myupperbound_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1] +1.96*x$coefficients[2,2]), 2))
+pvalue_diet <- lapply(summaries_diet, function(x) x$coefficients[2,4])
+pvalue_diet_bon <- as.list(p.adjust(pvalue_diet, method="bonferroni", n=length(foodgroups_matrix))) 
+pvalue_diet_fdr <- as.list(p.adjust(pvalue_diet, method="BH", n=length(foodgroups_matrix)))
+
+
+log_model2_output_diet <- lapply(1:ncol(foodgroups_matrix), function(x) glm(alldisease_2016 ~ foodgroups_matrix[,x] +
+ age86 + sex + race_new + alone_ever + marry_base + nSES_86 + bmi_avg + mvever + pmh + smk + pa_avg + alco_avg +
+depres + famdem + hx_can + hx_db + hx_cvd + cafh + mifh + dbfh, data = dataset_edit, family = "binomial"))
+
+summaries_diet_2 <- lapply(log_model2_output_diet, summary)
+myestimate_2 <- lapply(summaries_diet_2, function(x) round(x$coefficients[2,1], 2))
+mycoef_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1]), 2))
+mylowerbound_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1] -1.96*x$coefficients[2,2]), 2))
+myupperbound_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1] +1.96*x$coefficients[2,2]), 2))
+pvalue_diet_2 <- lapply(summaries_diet_2, function(x) x$coefficients[2,4])
+pvalue_diet_2_bon <- as.list(p.adjust(pvalue_diet_2, method="bonferroni", n=length(foodgroups_matrix))) 
+pvalue_diet_2_fdr <- as.list(p.adjust(pvalue_diet_2, method="BH", n=length(foodgroups_matrix)))
+
+
+together_diet <- paste(format(mycoef_diet_2, nsmall=2), " (",
+       format(mylowerbound_diet_2, nsmall=2), "$ ",
+       format(myupperbound_diet_2, nsmall=2), ") ", sep="")
+
+
+## writing out the results file 
+# for base - model 1 and 2
+m1_diet <- c()
+m1_diet <- cbind(colnames(foodgroups_matrix), myestimate, mycoef_diet, mylowerbound_diet, myupperbound_diet, pvalue_diet, pvalue_diet_bon, pvalue_diet_fdr, myestimate_2, mycoef_diet_2, mylowerbound_diet_2, myupperbound_diet_2, pvalue_diet_2, pvalue_diet_2_bon, pvalue_diet_2_fdr, together_diet)
+# colnames(m1_diet) <- c("Metabolite", "OR-mod1", "LB-mod1", "UB-mod1", "p-value-mod1", "p-value-mod1-bon", "p-value-mod1-fdr", "OR-mod2", "LB-mod2", "UB-mod2", "p-value-mod2", "p-value-mod2-bon", "p-value-mod2-fdr", "together")
+
+
+#### logistic regressions for alcohol-related variable by excluding alco_avg from the covariates 
+
+log_model1_output_diet <- lapply(1:ncol(alco_matrix), function(x) glm(alldisease_2016 ~ alco_matrix[,x] + sex + age86, data = dataset_edit, family = "binomial"))
+
+summaries_diet <- lapply(log_model1_output_diet, summary)
+myestimate <- lapply(summaries_diet, function(x) round(x$coefficients[2,1], 2))
+mycoef_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1]), 2))
+mylowerbound_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1] -1.96*x$coefficients[2,2]), 2))
+myupperbound_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1] +1.96*x$coefficients[2,2]), 2))
+pvalue_diet <- lapply(summaries_diet, function(x) x$coefficients[2,4])
+pvalue_diet_bon <- as.list(p.adjust(pvalue_diet, method="bonferroni", n=length(alco_matrix))) 
+pvalue_diet_fdr <- as.list(p.adjust(pvalue_diet, method="BH", n=length(alco_matrix)))
+
+
+log_model2_output_diet <- lapply(1:ncol(alco_matrix), function(x) glm(alldisease_2016 ~ alco_matrix[,x] +
+ sex + age86 + race_new + alone_ever + marry_base + nSES_86 + bmi_avg + mvever + pmh + smk + pa_avg +
+depres + famdem + hx_can + hx_db + hx_cvd + cafh + mifh + dbfh, data = dataset_edit, family = "binomial"))
+
+summaries_diet_2 <- lapply(log_model2_output_diet, summary)
+myestimate_2 <- lapply(summaries_diet_2, function(x) round(x$coefficients[2,1], 2))
+mycoef_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1]), 2))
+mylowerbound_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1] -1.96*x$coefficients[2,2]), 2))
+myupperbound_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1] +1.96*x$coefficients[2,2]), 2))
+pvalue_diet_2 <- lapply(summaries_diet_2, function(x) x$coefficients[2,4])
+pvalue_diet_2_bon <- as.list(p.adjust(pvalue_diet_2, method="bonferroni", n=length(alco_matrix))) 
+pvalue_diet_2_fdr <- as.list(p.adjust(pvalue_diet_2, method="BH", n=length(alco_matrix)))
+
+
+together_diet <- paste(format(mycoef_diet_2, nsmall=2), " (",
+       format(mylowerbound_diet_2, nsmall=2), "$ ",
+       format(myupperbound_diet_2, nsmall=2), ") ", sep="")
+
+m2_diet <- c()
+m2_diet <- cbind(colnames(alco_matrix), myestimate, mycoef_diet, mylowerbound_diet, myupperbound_diet, pvalue_diet, pvalue_diet_bon, pvalue_diet_fdr, myestimate_2, mycoef_diet_2, mylowerbound_diet_2, myupperbound_diet_2, pvalue_diet_2, pvalue_diet_2_bon, pvalue_diet_2_fdr, together_diet)
+
+total_diet <- rbind(m1_diet, m2_diet)
+colnames(total_diet) <- c("Food Group", "B-mod1", "OR-mod1", "LB-mod1", "UB-mod1", "p-value-mod1", "p-value-mod1-bon", "p-value-mod1-fdr", "B-mod2", "OR-mod2", "LB-mod2", "UB-mod2", "p-value-mod2", "p-value-mod2-bon", "p-value-mod2-fdr", "together")
+
+write.table(total_diet, file = "[file].csv", sep=",", quote=F, row.names=F, col.names=T)
+
+### Merge with food group names
+Results_1 <- read.csv ('[file].csv', header=TRUE, sep=',')
+
+Results_main <- merge(Results_1, foodgrp_names, by.x="Food.Group", by.y="foodgrp_id", all.x=TRUE)
+# save(Results_main, file = "[file].RData")
+
+
+### Overwrite with names
+write.table(Results_main, file = "[file].csv", sep=",", quote=F, row.names=F, col.names=T)
+
+
+
+
+
+
+
+
+##############################
+#### Survived to 70 years ####
+##############################
+
+### Survived to 70 years
+log_model1_output_diet <- lapply(1:ncol(foodgroups_matrix), function(x) glm(reached_70 ~ foodgroups_matrix[,x] + age86 + sex, data = dataset_edit, family = "binomial"))
+
+summaries_diet <- lapply(log_model1_output_diet, summary)
+myestimate <- lapply(summaries_diet, function(x) round(x$coefficients[2,1], 2))
+mycoef_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1]), 2))
+mylowerbound_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1] -1.96*x$coefficients[2,2]), 2))
+myupperbound_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1] +1.96*x$coefficients[2,2]), 2))
+pvalue_diet <- lapply(summaries_diet, function(x) x$coefficients[2,4])
+pvalue_diet_bon <- as.list(p.adjust(pvalue_diet, method="bonferroni", n=length(foodgroups_matrix))) 
+pvalue_diet_fdr <- as.list(p.adjust(pvalue_diet, method="BH", n=length(foodgroups_matrix)))
+
+
+log_model2_output_diet <- lapply(1:ncol(foodgroups_matrix), function(x) glm(reached_70 ~ foodgroups_matrix[,x] +
+ age86 + sex + race_new + alone_ever + marry_base + nSES_86 + bmi_avg + mvever + pmh + smk + pa_avg + alco_avg +
+depres + famdem + hx_can + hx_db + hx_cvd + cafh + mifh + dbfh, data = dataset_edit, family = "binomial"))
+
+summaries_diet_2 <- lapply(log_model2_output_diet, summary)
+myestimate_2 <- lapply(summaries_diet_2, function(x) round(x$coefficients[2,1], 2))
+mycoef_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1]), 2))
+mylowerbound_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1] -1.96*x$coefficients[2,2]), 2))
+myupperbound_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1] +1.96*x$coefficients[2,2]), 2))
+pvalue_diet_2 <- lapply(summaries_diet_2, function(x) x$coefficients[2,4])
+pvalue_diet_2_bon <- as.list(p.adjust(pvalue_diet_2, method="bonferroni", n=length(foodgroups_matrix))) 
+pvalue_diet_2_fdr <- as.list(p.adjust(pvalue_diet_2, method="BH", n=length(foodgroups_matrix)))
+
+
+together_diet <- paste(format(mycoef_diet_2, nsmall=2), " (",
+       format(mylowerbound_diet_2, nsmall=2), "$ ",
+       format(myupperbound_diet_2, nsmall=2), ") ", sep="")
+
+
+## writing out the results file 
+# for base - model 1 and 2
+m1_diet <- c()
+m1_diet <- cbind(colnames(foodgroups_matrix), myestimate, mycoef_diet, mylowerbound_diet, myupperbound_diet, pvalue_diet, pvalue_diet_bon, pvalue_diet_fdr, myestimate_2, mycoef_diet_2, mylowerbound_diet_2, myupperbound_diet_2, pvalue_diet_2, pvalue_diet_2_bon, pvalue_diet_2_fdr, together_diet)
+# colnames(m1_diet) <- c("Metabolite", "OR-mod1", "LB-mod1", "UB-mod1", "p-value-mod1", "p-value-mod1-bon", "p-value-mod1-fdr", "OR-mod2", "LB-mod2", "UB-mod2", "p-value-mod2", "p-value-mod2-bon", "p-value-mod2-fdr", "together")
+
+
+#### logistic regressions for alcohol-related variable by excluding alco_avg from the covariates 
+
+log_model1_output_diet <- lapply(1:ncol(alco_matrix), function(x) glm(reached_70 ~ alco_matrix[,x] + sex + age86, data = dataset_edit, family = "binomial"))
+
+summaries_diet <- lapply(log_model1_output_diet, summary)
+myestimate <- lapply(summaries_diet, function(x) round(x$coefficients[2,1], 2))
+mycoef_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1]), 2))
+mylowerbound_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1] -1.96*x$coefficients[2,2]), 2))
+myupperbound_diet <- lapply(summaries_diet, function(x) round(exp(x$coefficients[2,1] +1.96*x$coefficients[2,2]), 2))
+pvalue_diet <- lapply(summaries_diet, function(x) x$coefficients[2,4])
+pvalue_diet_bon <- as.list(p.adjust(pvalue_diet, method="bonferroni", n=length(alco_matrix))) 
+pvalue_diet_fdr <- as.list(p.adjust(pvalue_diet, method="BH", n=length(alco_matrix)))
+
+
+log_model2_output_diet <- lapply(1:ncol(alco_matrix), function(x) glm(reached_70 ~ alco_matrix[,x] +
+ sex + age86 + race_new + alone_ever + marry_base + nSES_86 + bmi_avg + mvever + pmh + smk + pa_avg +
+depres + famdem + hx_can + hx_db + hx_cvd + cafh + mifh + dbfh, data = dataset_edit, family = "binomial"))
+
+summaries_diet_2 <- lapply(log_model2_output_diet, summary)
+myestimate_2 <- lapply(summaries_diet_2, function(x) round(x$coefficients[2,1], 2))
+mycoef_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1]), 2))
+mylowerbound_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1] -1.96*x$coefficients[2,2]), 2))
+myupperbound_diet_2 <- lapply(summaries_diet_2, function(x) round(exp(x$coefficients[2,1] +1.96*x$coefficients[2,2]), 2))
+pvalue_diet_2 <- lapply(summaries_diet_2, function(x) x$coefficients[2,4])
+pvalue_diet_2_bon <- as.list(p.adjust(pvalue_diet_2, method="bonferroni", n=length(alco_matrix))) 
+pvalue_diet_2_fdr <- as.list(p.adjust(pvalue_diet_2, method="BH", n=length(alco_matrix)))
+
+
+together_diet <- paste(format(mycoef_diet_2, nsmall=2), " (",
+       format(mylowerbound_diet_2, nsmall=2), "$ ",
+       format(myupperbound_diet_2, nsmall=2), ") ", sep="")
+
+m2_diet <- c()
+m2_diet <- cbind(colnames(alco_matrix), myestimate, mycoef_diet, mylowerbound_diet, myupperbound_diet, pvalue_diet, pvalue_diet_bon, pvalue_diet_fdr, myestimate_2, mycoef_diet_2, mylowerbound_diet_2, myupperbound_diet_2, pvalue_diet_2, pvalue_diet_2_bon, pvalue_diet_2_fdr, together_diet)
+
+total_diet <- rbind(m1_diet, m2_diet)
+colnames(total_diet) <- c("Food Group", "B-mod1", "OR-mod1", "LB-mod1", "UB-mod1", "p-value-mod1", "p-value-mod1-bon", "p-value-mod1-fdr", "B-mod2", "OR-mod2", "LB-mod2", "UB-mod2", "p-value-mod2", "p-value-mod2-bon", "p-value-mod2-fdr", "together")
+
+write.table(total_diet, file = "[file].csv", sep=",", quote=F, row.names=F, col.names=T)
+
+### Merge with food group names
+Results_1 <- read.csv ('[file].csv', header=TRUE, sep=',')
+
+Results_main <- merge(Results_1, foodgrp_names, by.x="Food.Group", by.y="foodgrp_id", all.x=TRUE)
+# save(Results_main, file = "[file].RData")
+
+
+### Overwrite with names
+write.table(Results_main, file = "[file].csv", sep=",", quote=F, row.names=F, col.names=T)
+
+
