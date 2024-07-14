@@ -1,0 +1,130 @@
+
+data aging_pool;
+   set out.ds_aging_pool_same_agebase70;
+	if age86<50 then agegp=1;
+	if 50>= age86 <55 then agegp=2; 
+	if 55>= age86 <60 then agegp=3; 
+	if 60>= age86 <65 then agegp=4; 
+	if 65>= age86 <70 then agegp=5; 
+	if 70>= age86 <75 then agegp=6; 
+	if age86 >=75 then agegp=7; 
+
+	%indic3(vbl=agegp,  prefix=agegp,  min=2, max=7, reflev=1, missing=., usemiss=0);
+	%indic3(vbl=smk,  prefix=smk,  min=2, max=3, reflev=1, missing=., usemiss=0,   
+	label1='never smoker',
+    label2='past smoker',
+    label3='curr smoker');
+	%indic3(vbl=race_new,  prefix=race_new,  min=2, max=4, reflev=1, missing=., usemiss=0, 
+	label1='White',
+    label2='Asian',
+    label3='African',
+	label4='Other');
+	%indic3(vbl=qahei_avg_a,  prefix=qahei_avg_a,  min=2, max=5, reflev=1, missing=., usemiss=0);
+	%indic3(vbl=pmh,  prefix=pmh,  min=2, max=4, reflev=1, missing=., usemiss=0, 
+    label1='premenopause',
+    label2='pmh neveruse',
+    label3='pmh curr use',
+    label4='pmh past use');
+
+run;
+
+proc freq data=aging_pool;
+	table agegp;
+run;
+
+data data_baseline;
+	set aging_pool;
+
+/*quartiles of dietary pattern scores using cumulative average*/
+%table1(data=data_baseline,
+        exposure=qahei_avg_a,
+        agegroup=agegp,
+        varlist=
+		ahei_avg ahei_avg_a sex age86 race_newr race_new2 race_new3 race_new4 nSES_86 alone_ever depres hx_can hx_db hx_cvd famdem  mvever pmhr pmh2 pmh3 pmh4 bmi_avg smkr smk2 smk3 pa_avg alco_avg calor_avg,
+        noadj = age86,
+        cat=sex race_newr race_new2 race_new3 race_new4 alone_ever  mvever  smkr smk2 smk3 depres famdem hx_can hx_db hx_cvd pmhr pmh2 pmh3 pmh4,
+	 dec=1,
+         rtftitle=Age-standardized characteristics of the study population by quartiles of AHEI-2010 scores,
+	 file=table1_ahei);
+
+	 
+%table1(data=data_baseline,
+        exposure=qamed_avg_a,
+        agegroup=agegp,
+        varlist=
+		amed_avg amed_avg_a  sex age86 race_newr race_new2 race_new3 race_new4 nSES_86 alone_ever depres hx_can hx_db hx_cvd famdem mvever pmhr pmh2 pmh3 pmh4 bmi_avg smkr smk2 smk3 pa_avg alco_avg calor_avg,
+        noadj = age86,
+        cat=sex race_newr race_new2 race_new3 race_new4 alone_ever  mvever  smkr smk2 smk3 depres famdem hx_can hx_db hx_cvd  pmhr pmh2 pmh3 pmh4,
+	 dec=1,
+         rtftitle=Age-standardized characteristics of the study population by quartiles of AMED scores,
+	 file=table1_amed);
+
+%table1(data=data_baseline,
+        exposure=qdash_avg_a,
+        agegroup=agegp,
+        varlist=
+		dash_avg dash_avg_a  sex age86 race_newr race_new2 race_new3 race_new4 nSES_86 alone_ever depres hx_can hx_db hx_cvd famdem mvever pmhr pmh2 pmh3 pmh4 bmi_avg smkr smk2 smk3 pa_avg alco_avg calor_avg,
+        noadj = age86,
+        cat=sex race_newr race_new2 race_new3 race_new4 alone_ever  mvever  smkr smk2 smk3 depres famdem hx_can hx_db hx_cvd  pmhr pmh2 pmh3 pmh4,
+	 dec=1,
+         rtftitle=Age-standardized characteristics of the study population by quartiles of DASH scores,
+	 file=table1_dash);
+
+
+%table1(data=data_baseline,
+        exposure=qmind_avg_a,
+        agegroup=agegp,
+        varlist=
+		mind_avg mind_avg_a  sex age86 race_newr race_new2 race_new3 race_new4 nSES_86 alone_ever  depres hx_can hx_db hx_cvd famdem  mvever pmhr pmh2 pmh3 pmh4 bmi_avg smkr smk2 smk3 pa_avg alco_avg calor_avg,
+        noadj = age86,
+        cat=sex race_newr race_new2 race_new3 race_new4 alone_ever  mvever  smkr smk2 smk3 depres famdem hx_can hx_db hx_cvd  pmhr pmh2 pmh3 pmh4,
+	 dec=1,
+         rtftitle=Age-standardized characteristics of the study population by quartiles of MIND scores,
+	 file=table1_mind);
+
+
+%table1(data=data_baseline,
+        exposure=qhpdi_avg_a,
+        agegroup=agegp,
+        varlist=
+		hpdi_avg hpdi_avg_a  sex age86 race_newr race_new2 race_new3 race_new4 nSES_86 alone_ever  depres hx_can hx_db hx_cvd famdem  mvever pmhr pmh2 pmh3 pmh4 bmi_avg smkr smk2 smk3 pa_avg alco_avg calor_avg,
+        noadj = age86,
+        cat=sex race_newr race_new2 race_new3 race_new4 alone_ever  mvever  smkr smk2 smk3 depres famdem hx_can hx_db hx_cvd  pmhr pmh2 pmh3 pmh4,
+	 dec=1,
+         rtftitle=Age-standardized characteristics of the study population by quartiles of hPDI scores,
+	 file=table1_hpdi);
+
+	 %table1(data=data_baseline,
+        exposure=qphd_avg_a,
+        agegroup=agegp,
+        varlist=
+		phd_avg phd_avg_a  sex age86 race_newr race_new2 race_new3 race_new4 nSES_86 alone_ever  depres hx_can hx_db hx_cvd famdem  mvever pmhr pmh2 pmh3 pmh4 bmi_avg smkr smk2 smk3 pa_avg alco_avg calor_avg,
+        noadj = age86,
+        cat=sex race_newr race_new2 race_new3 race_new4 alone_ever  mvever  smkr smk2 smk3 depres famdem hx_can hx_db hx_cvd pmhr pmh2 pmh3 pmh4,
+	 dec=1,
+         rtftitle=Age-standardized characteristics of the study population by quartiles of PHD scores,
+	 file=table1_phd);
+
+
+     %table1(data=data_baseline,
+     exposure=qedih_avg_a,
+     agegroup=agegp,
+     varlist=
+     edih_avg edih_avg_a  sex age86 race_newr race_new2 race_new3 race_new4 nSES_86 alone_ever  depres hx_can hx_db hx_cvd famdem mvever pmhr pmh2 pmh3 pmh4 bmi_avg smkr smk2 smk3 pa_avg alco_avg calor_avg,
+     noadj = age86,
+     cat=sex race_newr race_new2 race_new3 race_new4 alone_ever  mvever  smkr smk2 smk3 depres famdem hx_can hx_db hx_cvd  pmhr pmh2 pmh3 pmh4,
+  dec=1,
+      rtftitle=Age-standardized characteristics of the study population by quartiles of EDIH scores,
+  file=table1_edih);
+
+
+  %table1(data=data_baseline,
+  exposure=qedip_avg_a,
+  agegroup=agegp,
+  varlist=
+  edip_avg edip_avg_a sex age86 race_newr race_new2 race_new3 race_new4 nSES_86 alone_ever  depres hx_can hx_db hx_cvd famdem  mvever pmhr pmh2 pmh3 pmh4 bmi_avg smkr smk2 smk3 pa_avg alco_avg calor_avg,
+  noadj = age86,
+  cat=sex race_newr race_new2 race_new3 race_new4 alone_ever  mvever  smkr smk2 smk3 depres famdem hx_can hx_db hx_cvd  pmhr pmh2 pmh3 pmh4,
+dec=1,
+   rtftitle=Age-standardized characteristics of the study population by quartiles of EDIP scores,
+file=table1_edip);
