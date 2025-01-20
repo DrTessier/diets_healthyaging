@@ -10,9 +10,9 @@ for (i in 1:length(factor)){
   dataset[, factor[i]]=as.factor(dataset[, factor[i]])
 }
 
-## Linear regressions of the association between single metabolites and lifestyle score (ordinal)
+## Logistic regressions of the association between dietary factors and healthy aging
 
-foodgroups_matrix <- dataset[,c(240:262, 264, 266:274, 279:308)] ## all foods except alcohol (because model will adjust for alcohol)
+foodgroups_matrix <- dataset[,c(240:262, 264, 266:274, 279:308)] 
 # foodgroups_matrix <- dataset[,196:250]
 colnames(foodgroups_matrix)
 
